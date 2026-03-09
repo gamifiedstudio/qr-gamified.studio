@@ -1,5 +1,5 @@
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
-import { createMcpServer } from './tools.ts';
+import { createMcpServer } from './tools';
 
 const transports = new Map<string, WebStandardStreamableHTTPServerTransport>();
 

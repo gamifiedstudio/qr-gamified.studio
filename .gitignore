@@ -1,10 +1,13 @@
 # Dependencies
 node_modules/
 
-# Build output
+# Next.js
+.next/
+out/
+
+# Build output (legacy)
 dist/
 dist-ssr/
-*.tsbuildinfo
 
 # Environment variables
 .env
@@ -12,9 +15,6 @@ dist-ssr/
 .env.production
 .env.development
 !.env.example
-
-# Vite
-*.local
 
 # Logs
 *.log
@@ -28,3 +28,7 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 *.sw?
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts

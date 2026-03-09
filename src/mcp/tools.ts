@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { type VCardData } from '../vcard.ts';
-import { generateQRBase64, generateQRFromStringBase64, generateVCardString } from '../lib/qr-generator.ts';
+import { type VCardData } from '../vcard';
+import { generateQRBase64, generateQRFromStringBase64, generateVCardString } from '../lib/qr-generator';
 
 const AddressSchema = z.object({
   type: z.enum(['WORK', 'HOME']).default('WORK'),
