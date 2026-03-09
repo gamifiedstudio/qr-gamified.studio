@@ -11,7 +11,7 @@ import {
   type VCardData, type PhoneEntry, type EmailEntry, type Address,
   defaultVCard, createEmptyAddress,
 } from './vcard';
-import { getSEO, getCanonicalURL, BASE_URL } from './seo';
+import { getSEO, getCanonicalURL, getOGImageURL } from './seo';
 import AddressSearch from './components/AddressSearch';
 
 import { Button } from '@/components/ui/button';
@@ -94,10 +94,11 @@ export default function App() {
     if (ogDesc) ogDesc.setAttribute('content', seo.description);
     const ogUrl = document.querySelector('meta[property="og:url"]');
     if (ogUrl) ogUrl.setAttribute('content', getCanonicalURL(routeType));
+    const ogImageUrl = getOGImageURL(routeType);
     const ogImage = document.querySelector('meta[property="og:image"]');
-    if (ogImage) ogImage.setAttribute('content', `${BASE_URL}${seo.ogImage}`);
+    if (ogImage) ogImage.setAttribute('content', ogImageUrl);
     const twitterImage = document.querySelector('meta[name="twitter:image"]');
-    if (twitterImage) twitterImage.setAttribute('content', `${BASE_URL}${seo.ogImage}`);
+    if (twitterImage) twitterImage.setAttribute('content', ogImageUrl);
   }, [seo, routeType]);
 
   const [formData, setFormData] = useState<Record<string, unknown>>(

@@ -3,7 +3,7 @@ import { join, extname } from 'path';
 
 const DIST = join(import.meta.dir, 'dist');
 const PORT = parseInt(process.env.PORT || '3000', 10);
-const BASE_URL = 'https://qr.beyondtheinnovation.com';
+const BASE_URL = 'https://qr.gamified.studio';
 
 const mimeTypes: Record<string, string> = {
   '.html': 'text/html',
@@ -126,8 +126,8 @@ function injectSEO(html: string, pathname: string): string {
   const canonical = getCanonicalURL(pathname);
   const slug = pathname.replace(/^\//, '').replace(/\/$/, '');
   const ogImageUrl = slug
-    ? `${BASE_URL}/${slug}/opengraph-image`
-    : `${BASE_URL}/opengraph-image`;
+    ? `${BASE_URL}/${slug}/opengraph.png`
+    : `${BASE_URL}/opengraph.png`;
 
   return html
     // Title
