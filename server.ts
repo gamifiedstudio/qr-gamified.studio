@@ -26,7 +26,6 @@ interface PageSEO {
   title: string;
   description: string;
   keywords: string;
-  ogImage: string; // path relative to BASE_URL
 }
 
 const PAGE_SEO: Record<string, PageSEO> = {
@@ -34,61 +33,67 @@ const PAGE_SEO: Record<string, PageSEO> = {
     title: 'URL QR Code Generator — Create Link QR Codes Free',
     description: 'Generate QR codes for any URL or website link. Free online tool with custom colors, dot patterns, and logo support. Download as high-quality PNG or SVG.',
     keywords: 'URL QR code generator, link QR code, website QR code, free QR code generator',
-    ogImage: '/url/opengraph.png',
+
   },
   vcard: {
     title: 'vCard QR Code Generator — Share Contact Info Instantly',
     description: 'Create vCard QR codes to share contact details instantly. Encode name, phone, email, address, and company. Scan to save contacts to any phone automatically.',
     keywords: 'vCard QR code generator, contact QR code, business card QR code, digital business card',
-    ogImage: '/vcard/opengraph.png',
+
   },
   wifi: {
     title: 'WiFi QR Code Generator — Share WiFi Password with QR Code',
     description: 'Create WiFi QR codes so guests connect to your network instantly — no password typing needed. Supports WPA, WPA2, and WEP encryption. Free, no sign-up.',
     keywords: 'WiFi QR code generator, share WiFi password QR, WiFi QR code, wireless QR code',
-    ogImage: '/wifi/opengraph.png',
+
   },
   email: {
     title: 'Email QR Code Generator — Pre-Fill Email with QR Code',
     description: 'Generate QR codes that open a pre-filled email with recipient, subject, and body. Perfect for feedback forms, support contacts, and marketing materials.',
     keywords: 'email QR code generator, mailto QR code, email QR code, contact QR code',
-    ogImage: '/email/opengraph.png',
+
   },
   phone: {
     title: 'Phone QR Code Generator — Create Call QR Codes Free',
     description: 'Generate QR codes that dial a phone number when scanned. Perfect for business cards, flyers, and posters. One scan to call — no manual dialing.',
     keywords: 'phone QR code generator, call QR code, telephone QR code, dial QR code',
-    ogImage: '/phone/opengraph.png',
+
   },
   sms: {
     title: 'SMS QR Code Generator — Create Text Message QR Codes',
     description: 'Generate QR codes that open a pre-filled SMS message. Set the phone number and message body. Scan to text — ideal for marketing and customer support.',
     keywords: 'SMS QR code generator, text message QR code, SMS QR code, message QR code',
-    ogImage: '/sms/opengraph.png',
+
   },
   event: {
     title: 'Event QR Code Generator — Create Calendar QR Codes',
     description: 'Generate QR codes that add events to any calendar app. Set title, date, time, location, and description. Scan to save — perfect for invitations and posters.',
     keywords: 'event QR code generator, calendar QR code, iCal QR code, meeting QR code',
-    ogImage: '/event/opengraph.png',
+
   },
   mecard: {
     title: 'MeCard QR Code Generator — Compact Contact QR Codes',
     description: 'Generate MeCard QR codes for compact contact sharing. Encode name, phone, email, organization, and address. Widely supported by Android and iOS devices.',
     keywords: 'MeCard QR code generator, MeCard QR code, contact QR code, compact vCard',
-    ogImage: '/mecard/opengraph.png',
+
   },
   text: {
     title: 'Text QR Code Generator — Encode Any Text as QR Code',
     description: 'Generate QR codes containing any plain text. Perfect for sharing messages, codes, serial numbers, or instructions. Free with custom styling options.',
     keywords: 'text QR code generator, plain text QR code, message QR code, QR code from text',
-    ogImage: '/text/opengraph.png',
+
   },
   'x-profile': {
     title: 'Twitter/X QR Code Generator — Share Your X Profile',
     description: 'Generate QR codes linking to any Twitter/X profile. Scan to open the profile directly. Perfect for social media marketing and business cards.',
     keywords: 'Twitter QR code generator, X profile QR code, social media QR code, Twitter QR code',
-    ogImage: '/x-profile/opengraph.png',
+
+  },
+  'vcard/bulk': {
+    title: 'Bulk vCard QR Code Generator — Generate Multiple Contact QR Codes',
+    description: 'Generate QR codes for multiple contacts at once. Paste JSON data, customize the style, and download all QR codes as a ZIP file. AI prompt template included.',
+    keywords: 'bulk QR code generator, multiple vCard QR codes, batch QR code, bulk contact QR codes',
+
   },
 };
 
@@ -96,12 +101,14 @@ const HOME_SEO: PageSEO = {
   title: 'Free QR Code Generator — URLs, vCards, WiFi, Events & More',
   description: 'Generate custom QR codes for free. Create QR codes for URLs, vCards, WiFi passwords, emails, phone numbers, SMS, calendar events, and more.',
   keywords: 'QR code generator, free QR code, vCard QR code, WiFi QR code, QR code maker, create QR code online, custom QR code',
-  ogImage: '/opengraph.png',
+
 };
 
 function getSEO(pathname: string): PageSEO {
   const slug = pathname.replace(/^\//, '').replace(/\/$/, '');
   if (!slug) return HOME_SEO;
+  // Handle nested routes like vcard/bulk
+  if (slug === 'vcard/bulk') return PAGE_SEO['vcard/bulk'] || HOME_SEO;
   return PAGE_SEO[slug] || HOME_SEO;
 }
 
@@ -117,7 +124,10 @@ const templateHtml = readFileSync(join(DIST, 'index.html'), 'utf-8');
 function injectSEO(html: string, pathname: string): string {
   const seo = getSEO(pathname);
   const canonical = getCanonicalURL(pathname);
-  const ogImageUrl = `${BASE_URL}${seo.ogImage}`;
+  const slug = pathname.replace(/^\//, '').replace(/\/$/, '');
+  const ogImageUrl = slug
+    ? `${BASE_URL}/${slug}/opengraph-image`
+    : `${BASE_URL}/opengraph-image`;
 
   return html
     // Title

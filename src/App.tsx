@@ -295,20 +295,31 @@ export default function App() {
               {activeType === 'mecard' && <MeCardForm data={formData.mecard as MeCardData} onChange={d => updateForm('mecard', d)} />}
               {activeType === 'x-profile' && <XProfileForm data={formData['x-profile'] as XProfileData} onChange={d => updateForm('x-profile', d)} />}
               {activeType === 'vcard' && (
-                <VCardForm
-                  data={vcardData}
-                  updateField={updateVCard}
-                  updatePhone={updatePhone}
-                  updateEmail={updateEmail}
-                  updateAddress={updateAddress}
-                  setAddressFields={setAddressFields}
-                  addPhone={() => setVcardData(p => ({ ...p, phones: [...p.phones, { type: 'CELL', value: '' }] }))}
-                  removePhone={i => setVcardData(p => ({ ...p, phones: p.phones.filter((_, idx) => idx !== i) }))}
-                  addEmail={() => setVcardData(p => ({ ...p, emails: [...p.emails, { type: 'WORK', value: '' }] }))}
-                  removeEmail={i => setVcardData(p => ({ ...p, emails: p.emails.filter((_, idx) => idx !== i) }))}
-                  addAddress={() => setVcardData(p => ({ ...p, addresses: [...p.addresses, createEmptyAddress()] }))}
-                  removeAddress={i => setVcardData(p => ({ ...p, addresses: p.addresses.filter((_, idx) => idx !== i) }))}
-                />
+                <>
+                  <div className="mb-5 flex items-center gap-3 rounded-lg border border-dashed border-border bg-muted/30 p-4">
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-foreground">Need multiple QR codes?</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Generate vCard QR codes in bulk from JSON data</p>
+                    </div>
+                    <Link to="/vcard/bulk">
+                      <Button variant="outline" size="sm">Bulk Generate</Button>
+                    </Link>
+                  </div>
+                  <VCardForm
+                    data={vcardData}
+                    updateField={updateVCard}
+                    updatePhone={updatePhone}
+                    updateEmail={updateEmail}
+                    updateAddress={updateAddress}
+                    setAddressFields={setAddressFields}
+                    addPhone={() => setVcardData(p => ({ ...p, phones: [...p.phones, { type: 'CELL', value: '' }] }))}
+                    removePhone={i => setVcardData(p => ({ ...p, phones: p.phones.filter((_, idx) => idx !== i) }))}
+                    addEmail={() => setVcardData(p => ({ ...p, emails: [...p.emails, { type: 'WORK', value: '' }] }))}
+                    removeEmail={i => setVcardData(p => ({ ...p, emails: p.emails.filter((_, idx) => idx !== i) }))}
+                    addAddress={() => setVcardData(p => ({ ...p, addresses: [...p.addresses, createEmptyAddress()] }))}
+                    removeAddress={i => setVcardData(p => ({ ...p, addresses: p.addresses.filter((_, idx) => idx !== i) }))}
+                  />
+                </>
               )}
             </div>
           </div>
