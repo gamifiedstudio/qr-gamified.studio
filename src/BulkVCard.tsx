@@ -15,9 +15,11 @@ import { Slider } from '@/components/ui/slider';
 interface QRStyle {
   dotColor: string;
   bgColor: string;
+  transparentBg: boolean;
   dotType: DotType;
   cornerSquareType: CornerSquareType;
   cornerDotType: CornerDotType;
+  bgRound: number;
   logo: string;
   logoSize: number;
   logoMargin: number;
@@ -26,9 +28,11 @@ interface QRStyle {
 const defaultStyle: QRStyle = {
   dotColor: '#000000',
   bgColor: '#ffffff',
+  transparentBg: false,
   dotType: 'rounded',
   cornerSquareType: 'extra-rounded',
   cornerDotType: 'dot',
+  bgRound: 0,
   logo: '',
   logoSize: 0.35,
   logoMargin: 6,
@@ -364,7 +368,10 @@ function createQRInstance(data: string, style: QRStyle): QRCodeStyling {
     type: 'canvas',
     data,
     dotsOptions: { color: style.dotColor, type: style.dotType },
-    backgroundOptions: { color: style.bgColor },
+    backgroundOptions: {
+      color: style.transparentBg ? 'transparent' : style.bgColor,
+      round: style.bgRound,
+    },
     cornersSquareOptions: { type: style.cornerSquareType },
     cornersDotOptions: { type: style.cornerDotType },
     qrOptions: { errorCorrectionLevel: style.logo ? 'Q' : 'M' },
@@ -418,7 +425,10 @@ export default function BulkVCard() {
           type: 'svg',
           data: firstEncoded,
           dotsOptions: { color: style.dotColor, type: style.dotType },
-          backgroundOptions: { color: style.bgColor },
+          backgroundOptions: {
+            color: style.transparentBg ? 'transparent' : style.bgColor,
+            round: style.bgRound,
+          },
           cornersSquareOptions: { type: style.cornerSquareType },
           cornersDotOptions: { type: style.cornerDotType },
           qrOptions: { errorCorrectionLevel: style.logo ? 'Q' : 'M' },
@@ -754,7 +764,7 @@ export default function BulkVCard() {
             </div>
 
             {/* Colors */}
-            <div className="border-b border-dashed border-border px-6 py-4">
+            <div className="border-b border-dashed border-border px-6 py-4 space-y-3">
               <div className="flex gap-4">
                 <div className="flex-1 space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Foreground</Label>
@@ -775,12 +785,21 @@ export default function BulkVCard() {
                       type="color"
                       value={style.bgColor}
                       onChange={e => setStyle(s => ({ ...s, bgColor: e.target.value }))}
-                      className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent p-0.5"
+                      className={`h-8 w-10 cursor-pointer rounded border border-border bg-transparent p-0.5 ${style.transparentBg ? 'opacity-40 pointer-events-none' : ''}`}
                     />
-                    <span className="text-xs text-muted-foreground font-mono">{style.bgColor}</span>
+                    <span className="text-xs text-muted-foreground font-mono">{style.transparentBg ? 'transparent' : style.bgColor}</span>
                   </div>
                 </div>
               </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={style.transparentBg}
+                  onChange={e => setStyle(s => ({ ...s, transparentBg: e.target.checked }))}
+                  className="h-4 w-4 rounded border-border"
+                />
+                <span className="text-xs text-muted-foreground">Transparent background</span>
+              </label>
             </div>
 
             {/* Dot Pattern */}
@@ -835,6 +854,21 @@ export default function BulkVCard() {
                   </Button>
                 ))}
               </div>
+            </div>
+
+            {/* Background Rounding */}
+            <div className="border-b border-dashed border-border px-6 py-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs text-muted-foreground">Frame Rounding</Label>
+                <span className="text-xs text-muted-foreground font-mono">{Math.round(style.bgRound * 100)}%</span>
+              </div>
+              <Slider
+                min={0}
+                max={50}
+                step={1}
+                value={[Math.round(style.bgRound * 100)]}
+                onValueChange={([v]) => setStyle(s => ({ ...s, bgRound: v / 100 }))}
+              />
             </div>
 
             {/* Logo */}
