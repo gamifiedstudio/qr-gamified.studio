@@ -333,12 +333,10 @@ export default function App() {
             </div>
             <div className="border-b border-border p-6">
               <div className="flex flex-col items-center gap-4">
-                <div
-                  ref={qrRef}
-                  className="flex min-h-[280px] items-center justify-center"
-                >
+                <div className="relative flex min-h-[280px] items-center justify-center">
+                  <div ref={qrRef} className="flex items-center justify-center" />
                   {!ready && (
-                    <span className="px-4 text-center text-sm text-muted-foreground">
+                    <span className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-muted-foreground">
                       Fill in the form to generate a QR code
                     </span>
                   )}
