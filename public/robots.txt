@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://qr.beyondtheinnovation.com/sitemap.xml

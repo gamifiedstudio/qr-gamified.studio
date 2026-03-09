@@ -2,12 +2,186 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>vCard QR Generator</title>
+
+    <!-- Primary Meta Tags -->
+    <title>Free QR Code Generator — URLs, vCards, WiFi, Events & More</title>
+    <meta name="description" content="Generate custom QR codes for free. Create QR codes for URLs, vCards, WiFi passwords, emails, phone numbers, SMS, calendar events, and more. Download as PNG or SVG with custom colors and logos." />
+    <meta name="keywords" content="QR code generator, free QR code, vCard QR code, WiFi QR code, QR code maker, create QR code online, custom QR code" />
+    <meta name="author" content="Beyond The Innovation" />
+    <link rel="canonical" href="https://qr.beyondtheinnovation.com/" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://qr.beyondtheinnovation.com/" />
+    <meta property="og:title" content="Free QR Code Generator — URLs, vCards, WiFi, Events & More" />
+    <meta property="og:description" content="Generate custom QR codes for free. Create QR codes for URLs, vCards, WiFi passwords, emails, phone numbers, SMS, calendar events, and more." />
+    <meta property="og:site_name" content="QR Code Generator by Beyond The Innovation" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Open Graph Image -->
+    <meta property="og:image" content="https://qr.beyondtheinnovation.com/opengraph.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://qr.beyondtheinnovation.com/" />
+    <meta name="twitter:title" content="Free QR Code Generator — URLs, vCards, WiFi, Events & More" />
+    <meta name="twitter:description" content="Generate custom QR codes for free. Create QR codes for URLs, vCards, WiFi passwords, emails, phone numbers, SMS, calendar events, and more." />
+    <meta name="twitter:image" content="https://qr.beyondtheinnovation.com/opengraph.png" />
+
+    <!-- Preconnect to external APIs -->
+    <link rel="preconnect" href="https://photon.komoot.io" crossorigin />
+    <link rel="dns-prefetch" href="https://photon.komoot.io" />
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="QR Generator" />
+
+    <!-- Structured Data: WebApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free QR Code Generator",
+      "url": "https://qr.beyondtheinnovation.com/",
+      "description": "Generate custom QR codes for URLs, vCards, WiFi passwords, emails, phone numbers, SMS, calendar events, MeCards, and X/Twitter profiles. Free, no sign-up required.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "URL QR codes",
+        "vCard contact QR codes",
+        "WiFi password QR codes",
+        "Email QR codes",
+        "Phone number QR codes",
+        "SMS QR codes",
+        "Calendar event QR codes",
+        "MeCard QR codes",
+        "X/Twitter profile QR codes",
+        "Custom colors and dot patterns",
+        "Center logo support",
+        "PNG and SVG download"
+      ],
+      "creator": {
+        "@type": "Organization",
+        "name": "Beyond The Innovation",
+        "url": "https://beyondtheinnovation.com"
+      }
+    }
+    </script>
+
+    <!-- Structured Data: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What types of QR codes can I create?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can create QR codes for URLs, plain text, vCard contacts, WiFi passwords, emails, phone numbers, SMS messages, calendar events, MeCards, and X/Twitter profiles — all for free."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is this QR code generator free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, completely free with no sign-up required. Generate unlimited QR codes and download them as high-quality PNG or SVG files."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I customize the QR code design?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. You can change foreground and background colors, choose from 6 dot patterns (rounded, dots, square, classy, classy-rounded, extra-rounded), customize corner styles, and add a center logo."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is a vCard QR code?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A vCard QR code encodes contact information (name, phone, email, address, company) in the vCard 3.0 format. When scanned, the contact is automatically added to the phone's address book."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I create a WiFi QR code?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Select the WiFi type, enter your network name (SSID), password, and encryption type (WPA/WPA2, WEP, or None). The generated QR code lets anyone scan to connect instantly — no typing required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What formats can I download QR codes in?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "QR codes can be downloaded as PNG (raster, ideal for digital use) or SVG (vector, perfect for print at any size)."
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- SEO: Static content for crawlers (hidden once React mounts) -->
+    <noscript>
+      <div style="max-width: 800px; margin: 40px auto; padding: 0 20px; font-family: system-ui, sans-serif; color: #e5e5e5; background: #0a0a0a;">
+        <h1>Free QR Code Generator</h1>
+        <p>Generate custom QR codes for free — no sign-up required. Create QR codes for URLs, vCard contacts, WiFi passwords, emails, phone numbers, SMS messages, calendar events, and more.</p>
+
+        <h2>Supported QR Code Types</h2>
+        <ul>
+          <li><strong>URL QR Code</strong> — Link to any website or webpage</li>
+          <li><strong>vCard QR Code</strong> — Share full contact details (name, phone, email, address, company)</li>
+          <li><strong>WiFi QR Code</strong> — Let guests connect to your network instantly</li>
+          <li><strong>Email QR Code</strong> — Pre-fill recipient, subject, and body</li>
+          <li><strong>Phone QR Code</strong> — Dial a number with one scan</li>
+          <li><strong>SMS QR Code</strong> — Send a text message with pre-filled content</li>
+          <li><strong>Event QR Code</strong> — Add calendar events automatically</li>
+          <li><strong>MeCard QR Code</strong> — Compact contact card format</li>
+          <li><strong>Text QR Code</strong> — Encode any plain text</li>
+          <li><strong>X/Twitter QR Code</strong> — Link to a Twitter/X profile</li>
+        </ul>
+
+        <h2>Customization Options</h2>
+        <p>Customize your QR codes with custom foreground and background colors, 6 different dot patterns, corner styles, and add your own center logo. Download in high-quality PNG or SVG format.</p>
+
+        <h2>Frequently Asked Questions</h2>
+        <h3>Is this QR code generator free?</h3>
+        <p>Yes, completely free with no sign-up required. Generate unlimited QR codes and download them as PNG or SVG.</p>
+
+        <h3>Can I add my logo to a QR code?</h3>
+        <p>Yes. Upload any image to place it in the center of your QR code. Adjust the size and margin for the perfect look.</p>
+
+        <h3>What is a vCard QR code?</h3>
+        <p>A vCard QR code encodes contact information in the standard vCard 3.0 format. When scanned, the contact is automatically saved to the phone's address book.</p>
+
+        <h3>How do I create a WiFi QR code?</h3>
+        <p>Select the WiFi type, enter your network name and password. Anyone who scans the code will connect automatically — no password typing needed.</p>
+
+        <p style="margin-top: 40px; color: #888;">This application requires JavaScript to run. Please enable JavaScript in your browser.</p>
+      </div>
+    </noscript>
   </body>
 </html>
