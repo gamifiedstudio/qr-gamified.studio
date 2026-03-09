@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+import { resolve } from 'path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
@@ -147,6 +148,15 @@ server.tool(
       url: params.url || '',
       note: params.note || '',
     };
+
+    // Validate outputPath stays within cwd
+    const resolvedOutput = resolve(params.outputPath);
+    const cwd = process.cwd();
+    if (!resolvedOutput.startsWith(cwd)) {
+      return {
+        content: [{ type: 'text' as const, text: `Error: Output path must be within the current working directory (${cwd})` }],
+      };
+    }
 
     await generateQRToFile(data, params.outputPath, {
       width: params.width,

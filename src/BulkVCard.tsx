@@ -56,6 +56,8 @@ const cornerDotTypes: { label: string; value: CornerDotType }[] = [
 
 type InputMode = 'csv' | 'json';
 
+const MAX_CONTACTS = 500;
+
 // ── CSV columns ──
 
 const CSV_EXAMPLE = `firstName,lastName,prefix,suffix,org,title,phone,email,street,city,state,zip,country,url,note
@@ -259,6 +261,10 @@ function parseCSVContacts(csv: string): { contacts: VCardData[]; errors: string[
     contacts.push(contact);
   }
 
+  if (contacts.length > MAX_CONTACTS) {
+    return { contacts: [], errors: [`Maximum ${MAX_CONTACTS} contacts per batch. Please split your data into smaller files.`] };
+  }
+
   return { contacts, errors };
 }
 
@@ -329,6 +335,10 @@ function parseJSONContacts(json: string): { contacts: VCardData[]; errors: strin
     }
 
     contacts.push(contact);
+  }
+
+  if (contacts.length > MAX_CONTACTS) {
+    return { contacts: [], errors: [`Maximum ${MAX_CONTACTS} contacts per batch. Please split your data into smaller files.`] };
   }
 
   return { contacts, errors };

@@ -1,69 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://qr.beyondtheinnovation.com/</loc>
+    <loc>https://qr.gamified.studio/</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/url</loc>
+    <loc>https://qr.gamified.studio/url</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/vcard</loc>
+    <loc>https://qr.gamified.studio/vcard</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/wifi</loc>
+    <loc>https://qr.gamified.studio/wifi</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/email</loc>
+    <loc>https://qr.gamified.studio/email</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/phone</loc>
+    <loc>https://qr.gamified.studio/phone</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/sms</loc>
+    <loc>https://qr.gamified.studio/sms</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/event</loc>
+    <loc>https://qr.gamified.studio/event</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/mecard</loc>
+    <loc>https://qr.gamified.studio/mecard</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/text</loc>
+    <loc>https://qr.gamified.studio/text</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://qr.beyondtheinnovation.com/x-profile</loc>
+    <loc>https://qr.gamified.studio/x-profile</loc>
     <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://qr.gamified.studio/vcard/bulk</loc>
+    <lastmod>2026-03-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'fs';
-import { join, extname } from 'path';
+import { join, extname, resolve } from 'path';
 
-const DIST = join(import.meta.dir, 'dist');
+const DIST = resolve(import.meta.dir, 'dist');
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const BASE_URL = 'https://qr.gamified.studio';
 
@@ -190,6 +190,11 @@ Bun.serve({
     let path = url.pathname === '/' ? '/index.html' : url.pathname;
     let filePath = join(DIST, path);
 
+    const resolved = resolve(filePath);
+    if (!resolved.startsWith(DIST)) {
+      return new Response('Forbidden', { status: 403 });
+    }
+
     // SPA fallback — serve index.html with injected SEO for non-file routes
     if (!existsSync(filePath)) {
       const html = injectSEO(templateHtml, url.pathname);
@@ -199,6 +204,10 @@ Bun.serve({
           'Cache-Control': 'no-cache',
           'X-Content-Type-Options': 'nosniff',
           'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+          'X-Frame-Options': 'DENY',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+          'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; connect-src 'self' https://photon.komoot.io; frame-ancestors 'none'",
         },
       });
     }
@@ -212,6 +221,10 @@ Bun.serve({
           'Cache-Control': 'no-cache',
           'X-Content-Type-Options': 'nosniff',
           'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+          'X-Frame-Options': 'DENY',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+          'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; connect-src 'self' https://photon.komoot.io; frame-ancestors 'none'",
         },
       });
     }
@@ -226,6 +239,9 @@ Bun.serve({
           'Cache-Control': isStatic ? 'public, max-age=31536000, immutable' : 'no-cache',
           'X-Content-Type-Options': 'nosniff',
           'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+          'X-Frame-Options': 'DENY',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
         },
       });
     } catch {
