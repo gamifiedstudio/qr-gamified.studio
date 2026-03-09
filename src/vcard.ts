@@ -17,6 +17,7 @@ export interface Address {
   zip: string;
   country: string;
   poBox: string;
+  geo?: string; // "lat,lng" for precise location (vCard GEO field)
 }
 
 export interface VCardData {
@@ -63,6 +64,7 @@ export function createEmptyAddress(): Address {
     zip: '',
     country: '',
     poBox: '',
+    geo: '',
   };
 }
 
@@ -163,6 +165,11 @@ export function buildVCard(data: VCardData): string {
       ].filter(Boolean);
       if (labelParts.length > 0) {
         lines.push(`LABEL;TYPE=${addr.type}:${escapeValue(labelParts.join('\\n'))}`);
+      }
+
+      // GEO for precise map pin
+      if (addr.geo) {
+        lines.push(`GEO:${addr.geo}`);
       }
     }
   }

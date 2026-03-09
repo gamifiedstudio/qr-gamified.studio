@@ -1,18 +1,28 @@
 {
   "name": "vcard-qr",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "vCard QR code generator — web app, CLI, and MCP server",
   "type": "module",
+  "bin": {
+    "vcard-qr": "./src/cli/index.ts"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cli": "bun run src/cli/index.ts",
+    "mcp": "bun run src/mcp/server.ts",
+    "start": "bun run server.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@types/qrcode": "^1.5.6",
     "qr-code-styling": "^1.9.2",
+    "qrcode": "^1.5.4",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

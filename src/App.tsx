@@ -379,6 +379,14 @@ export default function App() {
                     />
                   </div>
                 </div>
+                <div className="form-group">
+                  <label>GPS Coordinates (lat,lng)</label>
+                  <input
+                    value={addr.geo || ''}
+                    onChange={(e) => updateAddress(i, 'geo', e.target.value)}
+                    placeholder="25.2070516,55.2759353"
+                  />
+                </div>
               </div>
             ))}
             <button className="btn-add" onClick={addAddress}>
