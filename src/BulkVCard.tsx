@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 
-// ── QR Style (same as App.tsx) ──
+// ── QR Style ──
 
 interface QRStyle {
   dotColor: string;
@@ -54,9 +54,36 @@ const cornerDotTypes: { label: string; value: CornerDotType }[] = [
   { label: 'Dot', value: 'dot' },
 ];
 
-// ── AI Prompt template ──
+type InputMode = 'csv' | 'json';
 
-const SCHEMA_TEMPLATE = `[
+// ── CSV columns ──
+
+const CSV_EXAMPLE = `firstName,lastName,prefix,suffix,org,title,phone,email,street,city,state,zip,country,url,note
+John,Doe,,Mr.,Acme Corp,Software Engineer,CELL:+1 234 567 8900,WORK:john@acme.com,123 Main St,Dubai,Dubai,00000,UAE,https://acme.com,
+Jane,Smith,,Dr.,Acme Corp,CTO,CELL:+1 987 654 3210|WORK:+1 555 123 4567,WORK:jane@acme.com|HOME:jane@gmail.com,,Dubai,Dubai,,UAE,https://acme.com,`;
+
+const CSV_AI_PROMPT = `Generate a CSV with these exact headers for vCard contact cards:
+
+firstName,lastName,prefix,suffix,org,title,phone,email,street,city,state,zip,country,url,note
+
+Rules:
+- firstName or lastName or org is required (at least one)
+- prefix: Mr., Mrs., Dr., etc. (optional)
+- suffix: Jr., PhD, etc. (optional)
+- phone: Single number or multiple with pipe separator. Format: TYPE:number or just number (defaults to CELL). Types: CELL, WORK, HOME, FAX. Example: CELL:+1234567890|WORK:+9876543210
+- email: Single or multiple with pipe separator. Format: TYPE:address or just address (defaults to WORK). Types: WORK, HOME. Example: WORK:john@acme.com|HOME:john@gmail.com
+- street, city, state, zip, country: Address fields (optional, one address per contact)
+- url: Website URL (optional)
+- note: Additional notes (optional)
+- Wrap fields in quotes if they contain commas
+
+Output ONLY the CSV with headers, no markdown code blocks, no explanation. I need contacts for the following people:
+
+[LIST YOUR PEOPLE HERE]`;
+
+// ── JSON templates ──
+
+const JSON_EXAMPLE = `[
   {
     "firstName": "John",
     "lastName": "Doe",
@@ -76,10 +103,10 @@ const SCHEMA_TEMPLATE = `[
   }
 ]`;
 
-const AI_PROMPT = `Generate a JSON array of vCard contacts using this exact structure. Each contact must follow this schema:
+const JSON_AI_PROMPT = `Generate a JSON array of vCard contacts using this exact structure:
 
 \`\`\`json
-${SCHEMA_TEMPLATE}
+${JSON_EXAMPLE}
 \`\`\`
 
 Field reference:
@@ -98,24 +125,146 @@ Output ONLY the JSON array, no markdown, no explanation. I need contacts for the
 
 [LIST YOUR PEOPLE HERE]`;
 
-// ── Helpers ──
+// ── CSV Parser ──
 
-function sanitizeFilename(name: string): string {
-  return name.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+function parseCSVLine(line: string): string[] {
+  const fields: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        // Check for escaped quote ("")
+        if (i + 1 < line.length && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        fields.push(current);
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
+  }
+  fields.push(current);
+  return fields;
 }
 
-function getContactFilename(contact: VCardData, index: number): string {
-  const parts = [contact.firstName, contact.lastName].filter(Boolean);
-  if (parts.length > 0) {
-    return sanitizeFilename(parts.join('_'));
-  }
-  if (contact.org) {
-    return sanitizeFilename(contact.org);
-  }
-  return `contact_${index + 1}`;
+function parsePhoneField(raw: string): PhoneEntry[] {
+  if (!raw.trim()) return [{ type: 'CELL', value: '' }];
+  return raw.split('|').map(part => {
+    const trimmed = part.trim();
+    const colonIdx = trimmed.indexOf(':');
+    // Check if before the colon is a known phone type
+    if (colonIdx > 0) {
+      const maybeType = trimmed.slice(0, colonIdx).toUpperCase();
+      if (['CELL', 'WORK', 'HOME', 'FAX'].includes(maybeType)) {
+        return { type: maybeType, value: trimmed.slice(colonIdx + 1).trim() };
+      }
+    }
+    return { type: 'CELL', value: trimmed };
+  }).filter(p => p.value);
 }
 
-function parseContacts(json: string): { contacts: VCardData[]; errors: string[] } {
+function parseEmailField(raw: string): EmailEntry[] {
+  if (!raw.trim()) return [{ type: 'WORK', value: '' }];
+  return raw.split('|').map(part => {
+    const trimmed = part.trim();
+    const colonIdx = trimmed.indexOf(':');
+    if (colonIdx > 0) {
+      const maybeType = trimmed.slice(0, colonIdx).toUpperCase();
+      if (['WORK', 'HOME'].includes(maybeType)) {
+        return { type: maybeType, value: trimmed.slice(colonIdx + 1).trim() };
+      }
+    }
+    return { type: 'WORK', value: trimmed };
+  }).filter(e => e.value);
+}
+
+function parseCSVContacts(csv: string): { contacts: VCardData[]; errors: string[] } {
+  const errors: string[] = [];
+  const lines = csv.trim().split('\n').map(l => l.replace(/\r$/, ''));
+  if (lines.length < 2) return { contacts: [], errors: [] };
+
+  // Parse header
+  const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+  const colMap = new Map<string, number>();
+  headers.forEach((h, i) => colMap.set(h, i));
+
+  // Check for required columns
+  const hasNameCols = colMap.has('firstname') || colMap.has('lastname') || colMap.has('org');
+  if (!hasNameCols) {
+    return { contacts: [], errors: ['CSV must have at least one of: firstName, lastName, or org columns'] };
+  }
+
+  const get = (fields: string[], col: string) => {
+    const idx = colMap.get(col);
+    if (idx === undefined || idx >= fields.length) return '';
+    return fields[idx].trim();
+  };
+
+  const contacts: VCardData[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue; // skip empty lines
+
+    const fields = parseCSVLine(lines[i]);
+
+    const street = get(fields, 'street');
+    const city = get(fields, 'city');
+    const state = get(fields, 'state');
+    const zip = get(fields, 'zip');
+    const country = get(fields, 'country');
+    const hasAddress = [street, city, state, zip, country].some(Boolean);
+
+    const contact: VCardData = {
+      firstName: get(fields, 'firstname'),
+      lastName: get(fields, 'lastname'),
+      prefix: get(fields, 'prefix'),
+      suffix: get(fields, 'suffix'),
+      org: get(fields, 'org'),
+      title: get(fields, 'title'),
+      phones: parsePhoneField(get(fields, 'phone')),
+      emails: parseEmailField(get(fields, 'email')),
+      addresses: hasAddress ? [{
+        type: 'WORK',
+        street,
+        street2: '',
+        city,
+        state,
+        zip,
+        country,
+        poBox: '',
+        geo: '',
+      }] : [],
+      url: get(fields, 'url'),
+      note: get(fields, 'note'),
+    };
+
+    if (!hasMinimumData(contact)) {
+      errors.push(`Row ${i + 1}: needs at least a first name, last name, or organization`);
+      continue;
+    }
+
+    contacts.push(contact);
+  }
+
+  return { contacts, errors };
+}
+
+// ── JSON Parser ──
+
+function parseJSONContacts(json: string): { contacts: VCardData[]; errors: string[] } {
   const errors: string[] = [];
   if (!json.trim()) return { contacts: [], errors: [] };
 
@@ -185,6 +334,19 @@ function parseContacts(json: string): { contacts: VCardData[]; errors: string[] 
   return { contacts, errors };
 }
 
+// ── Helpers ──
+
+function sanitizeFilename(name: string): string {
+  return name.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+}
+
+function getContactFilename(contact: VCardData, index: number): string {
+  const parts = [contact.firstName, contact.lastName].filter(Boolean);
+  if (parts.length > 0) return sanitizeFilename(parts.join('_'));
+  if (contact.org) return sanitizeFilename(contact.org);
+  return `contact_${index + 1}`;
+}
+
 function createQRInstance(data: string, style: QRStyle): QRCodeStyling {
   return new QRCodeStyling({
     width: 1024,
@@ -211,15 +373,19 @@ function createQRInstance(data: string, style: QRStyle): QRCodeStyling {
 // ── Component ──
 
 export default function BulkVCard() {
-  const [jsonInput, setJsonInput] = useState('');
+  const [input, setInput] = useState('');
+  const [mode, setMode] = useState<InputMode>('csv');
   const [style, setStyle] = useState<QRStyle>({ ...defaultStyle });
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
-  const [copied, setCopied] = useState<'prompt' | 'schema' | null>(null);
+  const [copied, setCopied] = useState<'prompt' | 'example' | null>(null);
   const qrRef = useRef<HTMLDivElement>(null);
   const qrCode = useRef<QRCodeStyling | null>(null);
 
-  const { contacts, errors } = useMemo(() => parseContacts(jsonInput), [jsonInput]);
+  const { contacts, errors } = useMemo(
+    () => mode === 'csv' ? parseCSVContacts(input) : parseJSONContacts(input),
+    [input, mode],
+  );
 
   // Preview first contact
   const firstEncoded = useMemo(() => {
@@ -281,11 +447,18 @@ export default function BulkVCard() {
   const removeLogo = () => setStyle(s => ({ ...s, logo: '' }));
 
   // Copy handlers
-  const copyToClipboard = useCallback(async (text: string, type: 'prompt' | 'schema') => {
+  const copyToClipboard = useCallback(async (text: string, type: 'prompt' | 'example') => {
     await navigator.clipboard.writeText(text);
     setCopied(type);
     setTimeout(() => setCopied(null), 2000);
   }, []);
+
+  // Mode switch — clear input when toggling
+  const switchMode = (newMode: InputMode) => {
+    if (newMode === mode) return;
+    setInput('');
+    setMode(newMode);
+  };
 
   // Bulk download
   const downloadZip = useCallback(async () => {
@@ -331,6 +504,9 @@ export default function BulkVCard() {
     qrCode.current.download({ name: filename, extension: format });
   };
 
+  const aiPrompt = mode === 'csv' ? CSV_AI_PROMPT : JSON_AI_PROMPT;
+  const example = mode === 'csv' ? CSV_EXAMPLE : JSON_EXAMPLE;
+
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       <div className="mx-auto w-full max-w-7xl border-x border-border flex flex-col flex-1 min-h-0">
@@ -366,31 +542,55 @@ export default function BulkVCard() {
                 )}
               </div>
               <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                Paste a JSON array of contacts to generate QR codes for all of them at once. Use the prompt template to have AI generate the data for you.
+                Paste contact data to generate QR codes for all of them at once. Copy the AI prompt to have any AI generate the data for you.
               </p>
             </div>
 
             <div className="p-6 space-y-6">
+              {/* Format toggle */}
+              <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted/50 w-fit">
+                <button
+                  onClick={() => switchMode('csv')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    mode === 'csv'
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  CSV
+                </button>
+                <button
+                  onClick={() => switchMode('json')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    mode === 'json'
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  JSON
+                </button>
+              </div>
+
               {/* AI Prompt section */}
               <div className="space-y-3">
                 <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">AI Prompt Template</h3>
                 <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                  Copy this prompt and give it to any AI (ChatGPT, Claude, etc.) along with your list of people. It will generate the JSON data you can paste below.
+                  Copy this prompt and give it to any AI (ChatGPT, Claude, etc.) along with your list of people. It will generate the {mode === 'csv' ? 'CSV' : 'JSON'} data you can paste below.
                 </p>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => copyToClipboard(AI_PROMPT, 'prompt')}
+                    onClick={() => copyToClipboard(aiPrompt, 'prompt')}
                   >
                     {copied === 'prompt' ? 'Copied!' : 'Copy AI Prompt'}
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => copyToClipboard(SCHEMA_TEMPLATE, 'schema')}
+                    onClick={() => copyToClipboard(example, 'example')}
                   >
-                    {copied === 'schema' ? 'Copied!' : 'Copy Schema Only'}
+                    {copied === 'example' ? 'Copied!' : 'Copy Example'}
                   </Button>
                 </div>
                 <details>
@@ -398,30 +598,41 @@ export default function BulkVCard() {
                     View prompt template
                   </summary>
                   <pre className="mt-3 max-h-64 overflow-auto rounded border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground break-all whitespace-pre-wrap">
-                    {AI_PROMPT}
+                    {aiPrompt}
                   </pre>
                 </details>
               </div>
 
               <div className="border-t border-dashed border-border" />
 
-              {/* JSON Input */}
+              {/* Data Input */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Contact Data (JSON)</h3>
-                  {jsonInput.trim() && (
-                    <Button variant="ghost" size="sm" onClick={() => setJsonInput('')} className="text-xs text-muted-foreground">
+                  <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Contact Data ({mode === 'csv' ? 'CSV' : 'JSON'})
+                  </h3>
+                  {input.trim() && (
+                    <Button variant="ghost" size="sm" onClick={() => setInput('')} className="text-xs text-muted-foreground">
                       Clear
                     </Button>
                   )}
                 </div>
                 <Textarea
-                  value={jsonInput}
-                  onChange={e => setJsonInput(e.target.value)}
-                  placeholder={`Paste your JSON array here...\n\n${SCHEMA_TEMPLATE}`}
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  placeholder={mode === 'csv'
+                    ? `Paste your CSV here...\n\n${CSV_EXAMPLE}`
+                    : `Paste your JSON array here...\n\n${JSON_EXAMPLE}`
+                  }
                   rows={16}
                   className="font-mono text-xs"
                 />
+                {mode === 'csv' && !input.trim() && (
+                  <div className="text-xs text-muted-foreground/60 space-y-1">
+                    <p><span className="font-medium text-muted-foreground">Phone:</span> +1234567890 or CELL:+123|WORK:+456</p>
+                    <p><span className="font-medium text-muted-foreground">Email:</span> john@acme.com or WORK:john@acme.com|HOME:john@gmail.com</p>
+                  </div>
+                )}
               </div>
 
               {/* Validation feedback */}
@@ -484,22 +695,20 @@ export default function BulkVCard() {
                 >
                   {contacts.length === 0 && (
                     <span className="px-4 text-center text-sm text-muted-foreground">
-                      Paste contact JSON to preview
+                      Paste contact data to preview
                     </span>
                   )}
                 </div>
 
                 {contacts.length > 0 && (
-                  <>
-                    <div className="flex w-full gap-2">
-                      <Button className="flex-1" onClick={() => downloadPreview('png')}>
-                        Download PNG
-                      </Button>
-                      <Button variant="outline" className="flex-1" onClick={() => downloadPreview('svg')}>
-                        Download SVG
-                      </Button>
-                    </div>
-                  </>
+                  <div className="flex w-full gap-2">
+                    <Button className="flex-1" onClick={() => downloadPreview('png')}>
+                      Download PNG
+                    </Button>
+                    <Button variant="outline" className="flex-1" onClick={() => downloadPreview('svg')}>
+                      Download SVG
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
