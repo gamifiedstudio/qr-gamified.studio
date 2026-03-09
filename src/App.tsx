@@ -20,6 +20,9 @@ interface QRStyle {
   dotType: DotType;
   cornerSquareType: CornerSquareType;
   cornerDotType: CornerDotType;
+  logo: string; // base64 data URL or empty
+  logoSize: number; // 0.2 to 0.5
+  logoMargin: number;
 }
 
 const defaultStyle: QRStyle = {
@@ -28,6 +31,9 @@ const defaultStyle: QRStyle = {
   dotType: 'rounded',
   cornerSquareType: 'extra-rounded',
   cornerDotType: 'dot',
+  logo: '',
+  logoSize: 0.35,
+  logoMargin: 6,
 };
 
 const dotTypes: { label: string; value: DotType }[] = [
@@ -77,7 +83,16 @@ export default function App() {
       backgroundOptions: { color: style.bgColor },
       cornersSquareOptions: { type: style.cornerSquareType },
       cornersDotOptions: { type: style.cornerDotType },
-      qrOptions: { errorCorrectionLevel: 'M' },
+      qrOptions: { errorCorrectionLevel: 'Q' }, // Higher correction for logo overlay
+      ...(style.logo ? {
+        image: style.logo,
+        imageOptions: {
+          hideBackgroundDots: true,
+          imageSize: style.logoSize,
+          margin: style.logoMargin,
+          crossOrigin: 'anonymous',
+        },
+      } : {}),
     });
     if (qrRef.current) {
       qrRef.current.innerHTML = '';
@@ -95,11 +110,34 @@ export default function App() {
         backgroundOptions: { color: style.bgColor },
         cornersSquareOptions: { type: style.cornerSquareType },
         cornersDotOptions: { type: style.cornerDotType },
+        qrOptions: { errorCorrectionLevel: style.logo ? 'Q' : 'M' },
+        ...(style.logo ? {
+          image: style.logo,
+          imageOptions: {
+            hideBackgroundDots: true,
+            imageSize: style.logoSize,
+            margin: style.logoMargin,
+            crossOrigin: 'anonymous',
+          },
+        } : { image: '' }),
       });
     } else {
-      qrCode.current.update({ data: ' ' }); // blank but keeps SVG mounted
+      qrCode.current.update({ data: ' ' });
     }
   }, [encoded, ready, style]);
+
+  // Logo file handler
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setStyle(s => ({ ...s, logo: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeLogo = () => setStyle(s => ({ ...s, logo: '' }));
 
   const updateForm = <T extends object>(type: QRType, updates: Partial<T>) => {
     setFormData(prev => ({
@@ -247,6 +285,40 @@ export default function App() {
                 <button key={cd.value} className={`dot-style-btn ${style.cornerDotType === cd.value ? 'active' : ''}`}
                   onClick={() => setStyle(s => ({ ...s, cornerDotType: cd.value }))}>{cd.label}</button>
               ))}
+            </div>
+
+            {/* Logo */}
+            <div className="style-section-label">Center Logo</div>
+            <div className="logo-section">
+              {style.logo ? (
+                <div className="logo-preview-wrap">
+                  <img src={style.logo} alt="Logo" className="logo-preview-img" />
+                  <button className="btn-remove-logo" onClick={removeLogo}>Remove</button>
+                </div>
+              ) : (
+                <label className="logo-upload-btn">
+                  <input type="file" accept="image/*" onChange={handleLogoUpload} hidden />
+                  Upload Logo
+                </label>
+              )}
+              {style.logo && (
+                <div className="logo-sliders">
+                  <div className="slider-row">
+                    <label>Size</label>
+                    <input type="range" min="0.15" max="0.5" step="0.01"
+                      value={style.logoSize}
+                      onChange={e => setStyle(s => ({ ...s, logoSize: parseFloat(e.target.value) }))} />
+                    <span>{Math.round(style.logoSize * 100)}%</span>
+                  </div>
+                  <div className="slider-row">
+                    <label>Margin</label>
+                    <input type="range" min="0" max="20" step="1"
+                      value={style.logoMargin}
+                      onChange={e => setStyle(s => ({ ...s, logoMargin: parseInt(e.target.value) }))} />
+                    <span>{style.logoMargin}px</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
