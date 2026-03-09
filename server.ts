@@ -1,5 +1,6 @@
 import { readFileSync, existsSync } from 'fs';
 import { join, extname, resolve } from 'path';
+import { handleMcpRequest } from './src/mcp/http.ts';
 
 const DIST = resolve(import.meta.dir, 'dist');
 const PORT = parseInt(process.env.PORT || '3000', 10);
@@ -185,8 +186,30 @@ function injectSEO(html: string, pathname: string): string {
 
 Bun.serve({
   port: PORT,
-  fetch(req) {
+  async fetch(req) {
     const url = new URL(req.url);
+
+    // MCP endpoint — Streamable HTTP transport
+    if (url.pathname === '/mcp') {
+      const corsHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept, Mcp-Session-Id, Last-Event-ID, Mcp-Protocol-Version',
+        'Access-Control-Expose-Headers': 'Mcp-Session-Id',
+      };
+
+      if (req.method === 'OPTIONS') {
+        return new Response(null, { status: 204, headers: corsHeaders });
+      }
+
+      const response = await handleMcpRequest(req);
+      // Merge CORS headers into the MCP response
+      for (const [key, value] of Object.entries(corsHeaders)) {
+        response.headers.set(key, value);
+      }
+      return response;
+    }
+
     let path = url.pathname === '/' ? '/index.html' : url.pathname;
     let filePath = join(DIST, path);
 

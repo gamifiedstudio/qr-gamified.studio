@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "cli": "bun run src/cli/index.ts",
-    "mcp": "bun run src/mcp/server.ts",
+    "mcp": "bun run src/mcp/stdio.ts",
     "start": "bun run server.ts",
     "og:generate": "bun run scripts/generate-og-images.ts"
   },

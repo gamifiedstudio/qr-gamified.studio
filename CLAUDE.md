@@ -1,6 +1,6 @@
 # QR Code Generator (BTI)
 
-Multi-format QR code generator with web app, CLI, and MCP server. Vite SPA with Bun static file server for SSR SEO injection.
+Multi-format QR code generator with web app, CLI, and MCP server (local stdio + remote HTTP). Vite SPA with Bun static file server for SSR SEO injection.
 
 ## Commands
 
@@ -9,7 +9,8 @@ bun dev          # Vite dev server :5173
 bun build        # OG images + TypeScript + Vite production build
 bun start        # Production server (Bun, serves dist/)
 bun run cli      # CLI tool
-bun run mcp      # MCP server
+bun run mcp      # MCP server (stdio, for local/Claude Code)
+                   # Remote MCP: served at /mcp on production server
 bun lint         # ESLint
 ```
 
@@ -25,7 +26,7 @@ bun lint         # ESLint
 | QR         | qr-code-styling (web), qrcode (CLI/MCP)        |
 | Server     | Bun static file server with SEO injection       |
 | CLI        | Bun executable (`bun run src/cli/index.ts`)     |
-| MCP        | @modelcontextprotocol/sdk                       |
+| MCP        | @modelcontextprotocol/sdk (WebStandard HTTP + stdio) |
 
 ## Structure
 
@@ -44,8 +45,11 @@ src/
     qr-generator.ts        # QR generation logic
     utils.ts               # cn() utility
   cli/index.ts             # CLI entry point
-  mcp/server.ts            # MCP server entry point
-server.ts                  # Production Bun server (SEO injection, SPA fallback)
+  mcp/
+    tools.ts               # Shared tool definitions + safety annotations
+    stdio.ts               # Stdio transport (local/Claude Code)
+    http.ts                # Streamable HTTP transport (remote/Claude.ai)
+server.ts                  # Production Bun server (SEO injection, SPA fallback, /mcp endpoint)
 scripts/generate-og-images.ts  # OG image generation (runs at build time)
 ```
 
