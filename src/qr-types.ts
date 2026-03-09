@@ -1,6 +1,6 @@
 // All QR code type encoders — each takes form data and returns raw string for QR encoding
 
-import { type VCardData, buildVCard, hasMinimumData } from './vcard.ts';
+import { type VCardData, buildVCard, hasMinimumData } from './vcard';
 
 // ── Type definitions ──
 

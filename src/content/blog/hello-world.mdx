@@ -1,0 +1,167 @@
+---
+title: "The Complete Guide to QR Code Types: URLs, vCards, WiFi, and Beyond"
+description: "Learn how to generate QR codes for every use case — URLs, contact cards, WiFi passwords, calendar events, and more. Free, no sign-up required."
+date: "2026-03-09"
+author: "So"
+slug: "hello-world"
+tags: ["QR Codes", "Guide", "Getting Started"]
+readTime: 6
+---
+
+## What Types of QR Codes Can You Generate?
+
+**Quick answer:** QR Gamified Studio supports 10 QR code types out of the box — URL, vCard, WiFi, Email, Phone, SMS, Calendar Event, MeCard, Plain Text, and X/Twitter Profile. Each encodes data differently so the scanner's device knows exactly what to do.
+
+Most people think QR codes are just for URLs. They're not. A QR code is a container for structured data, and the format of that data tells the scanning device whether to open a browser, save a contact, join a WiFi network, or compose an email.
+
+Here's the full breakdown.
+
+---
+
+## URL QR Codes
+
+The most common type. Encode any web address and the scanner's browser opens it automatically.
+
+```text
+https://qr.gamified.studio
+```
+
+Best for: marketing materials, product packaging, business cards, restaurant menus.
+
+One detail people miss: always include `https://` in your URL. QR scanners handle it better than bare domains, and it ensures the link works on every device.
+
+---
+
+## vCard QR Codes
+
+**Quick answer:** vCard QR codes encode a full digital contact card — name, phone, email, company, address, and more. Scanning one adds the contact directly to your phone's address book.
+
+vCards follow the [vCard 3.0 specification](https://datatracker.ietf.org/doc/html/rfc6350) and can include:
+
+- Full name, first/last name
+- Multiple phone numbers (work, mobile, home)
+- Multiple email addresses
+- Company and job title
+- Physical address
+- Website URL
+- Notes
+
+This is the most data-dense QR type. For bulk generation (conferences, teams), use the [bulk vCard tool](/vcard/bulk) to generate hundreds of QR codes from a CSV file.
+
+---
+
+## WiFi QR Codes
+
+**Quick answer:** WiFi QR codes let anyone join your network by scanning — no typing passwords. They encode the SSID, password, and encryption type.
+
+The encoded format looks like this:
+
+```text
+WIFI:T:WPA;S:MyNetwork;P:MyPassword;;
+```
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `T` | Encryption type | `WPA`, `WEP`, `nopass` |
+| `S` | Network name (SSID) | `MyNetwork` |
+| `P` | Password | `MyPassword` |
+| `H` | Hidden network | `true` (optional) |
+
+Perfect for offices, Airbnbs, cafes, and events. Print the QR code once and guests connect instantly without asking for the password.
+
+---
+
+## Email QR Codes
+
+Encode a pre-filled email with recipient, subject line, and body text. When scanned, the device's default email client opens with everything filled in.
+
+```text
+mailto:hello@example.com?subject=Hello&body=I%20found%20your%20QR%20code
+```
+
+Use cases: feedback collection, support requests, event RSVPs. The subject and body are optional but dramatically increase response rates when pre-filled.
+
+---
+
+## Phone and SMS QR Codes
+
+Phone QR codes trigger a direct call:
+
+```text
+tel:+1234567890
+```
+
+SMS QR codes open a pre-filled text message:
+
+```text
+SMSTO:+1234567890:Hey, I scanned your QR code!
+```
+
+Both are useful for customer support lines, emergency contacts, or quick-response marketing campaigns.
+
+---
+
+## Calendar Event QR Codes
+
+**Quick answer:** Event QR codes encode iCalendar data — title, location, description, start/end times. Scanning adds the event directly to the user's calendar app.
+
+The format follows the iCalendar (`.ics`) standard:
+
+```text
+BEGIN:VEVENT
+SUMMARY:Team Standup
+LOCATION:Conference Room B
+DTSTART:20260315T090000
+DTEND:20260315T091500
+END:VEVENT
+```
+
+Great for conferences, meetups, classes, and any event where you want attendees to save the date without manual entry.
+
+---
+
+## MeCard vs vCard
+
+MeCard is a simpler, more compact contact format. It encodes less data than vCard but produces smaller QR codes — which scan faster and work better on printed materials at small sizes.
+
+| Feature | vCard | MeCard |
+|---------|-------|--------|
+| Standard | RFC 6350 | NTT DoCoMo |
+| Data density | High | Medium |
+| QR code size | Larger | Smaller |
+| Photo support | Yes | No |
+| Multiple phones | Yes | No |
+| Best for | Full contacts | Quick sharing |
+
+Use vCard when you need a complete contact profile. Use MeCard when size matters — small stickers, badges, or business cards where the QR code needs to be compact.
+
+---
+
+## Customization Options
+
+Every QR code type supports the same visual customization:
+
+- **Colors**: Foreground, background, and corner colors
+- **Patterns**: Dots, rounded, classy, extra-rounded
+- **Corner styles**: Square, extra-rounded, dot
+- **Logo**: Upload and embed your brand logo
+- **Frame rounding**: Adjust border radius
+- **Transparent background**: For overlaying on designs
+
+All QR codes can be downloaded as PNG or SVG. SVG is recommended for print — it scales to any size without losing quality.
+
+---
+
+## Frequently Asked Questions
+
+### Q: What QR code type should I use for business cards?
+
+vCard is the best choice for business cards. It encodes your full contact info — name, phone, email, company, title, address — and saves directly to the scanner's address book. If your card is small and space is limited, MeCard produces a more compact QR code with the essential fields.
+
+### Q: Do QR codes expire?
+
+No. The QR codes generated by QR Gamified Studio are static — the data is encoded directly in the image. They never expire, require no account, and work offline. The only way a QR code "breaks" is if the destination URL goes down (for URL-type codes).
+
+### Q: Can I generate QR codes programmatically?
+
+Yes. QR Gamified Studio includes an [MCP server](/docs/mcp) that integrates with AI assistants like Claude, plus a CLI tool for batch generation. Both support all 10 QR code types with full customization options.

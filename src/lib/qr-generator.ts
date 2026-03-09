@@ -1,7 +1,7 @@
 import QRCode from 'qrcode';
 import { writeFileSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
-import { type VCardData, buildVCard, hasMinimumData } from '../vcard.ts';
+import { type VCardData, buildVCard, hasMinimumData } from '../vcard';
 
 export interface QROptions {
   width?: number;

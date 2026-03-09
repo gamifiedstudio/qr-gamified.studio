@@ -1,6 +1,6 @@
 # QR Code Generator
 
-Multi-format QR code generator with a web app, CLI tool, and MCP server. Built with React 19 and Bun.
+Multi-format QR code generator with a web app, blog, CLI tool, and MCP server. Built with Next.js 15 and React 19.
 
 **Live at [qr.gamified.studio](https://qr.gamified.studio)**
 
@@ -11,20 +11,21 @@ Multi-format QR code generator with a web app, CLI tool, and MCP server. Built w
 - **Bulk generation** -- Import contacts via CSV or JSON, generate QR codes in batch, download as ZIP
 - **Style customization** -- Dot patterns, corner styles, colors, and logo embedding
 - **Multiple export formats** -- PNG, SVG, WEBP
-- **SEO** -- Server-side meta injection for social previews and search engines
+- **Blog** -- MDX-powered blog with syntax highlighting, table of contents, and JSON-LD schemas
+- **SEO** -- Per-route metadata, dynamic OG images, sitemap, and structured data
 - **CLI** -- Generate vCard QR codes from the terminal
-- **MCP server** -- Expose QR generation to AI assistants via the Model Context Protocol
+- **MCP server** -- Expose QR generation to AI assistants via the Model Context Protocol (stdio + HTTP)
 
 ## Tech Stack
 
-| Layer      | Tech                                         |
-| ---------- | -------------------------------------------- |
-| Framework  | Vite, React 19, React Router DOM             |
-| Language   | TypeScript (strict mode)                     |
-| Styling    | Tailwind v4, CSS variables, shadcn/ui        |
-| QR         | qr-code-styling (web), qrcode (CLI/MCP)     |
-| Server     | Bun static file server with SEO injection    |
-| MCP        | @modelcontextprotocol/sdk                    |
+| Layer      | Tech                                              |
+| ---------- | ------------------------------------------------- |
+| Framework  | Next.js 15, React 19, App Router                  |
+| Language   | TypeScript (strict mode)                           |
+| Styling    | Tailwind v4, CSS variables (oklch), shadcn/ui      |
+| QR         | qr-code-styling (web), qrcode (CLI/MCP)           |
+| Blog       | MDX (next-mdx-remote/rsc), rehype-pretty-code      |
+| MCP        | @modelcontextprotocol/sdk                          |
 
 ## Getting Started
 
@@ -44,7 +45,7 @@ bun install
 bun dev
 ```
 
-Starts the Vite dev server at `http://localhost:5173`.
+Starts the Next.js dev server with Turbopack at `http://localhost:3000`.
 
 ### Build
 
@@ -52,7 +53,7 @@ Starts the Vite dev server at `http://localhost:5173`.
 bun build
 ```
 
-Generates OG images, runs TypeScript checks, and produces the production bundle in `dist/`.
+Produces a standalone Next.js build in `.next/standalone/`.
 
 ### Production
 
@@ -60,7 +61,7 @@ Generates OG images, runs TypeScript checks, and produces the production bundle 
 bun start
 ```
 
-Runs the Bun production server (serves `dist/` with SPA fallback and SEO injection).
+Runs the standalone Node.js server (`node .next/standalone/server.js`).
 
 ## CLI
 
@@ -99,6 +100,8 @@ Expose QR generation to AI assistants over stdio:
 bun run mcp
 ```
 
+The MCP server is also available over HTTP at `/mcp` on the production site.
+
 ### Tools
 
 | Tool | Description |
@@ -114,7 +117,7 @@ bun run mcp
   "mcpServers": {
     "vcard-qr": {
       "command": "bun",
-      "args": ["run", "/path/to/qr-gamified.studio/src/mcp/server.ts"]
+      "args": ["run", "/path/to/qr-gamified.studio/src/mcp/stdio.ts"]
     }
   }
 }
@@ -124,22 +127,41 @@ bun run mcp
 
 ```
 src/
-  App.tsx                  # Main app with router
-  main.tsx                 # Entry point
-  qr-types.ts             # QR type definitions and encoders
-  vcard.ts                 # vCard encoding logic
-  seo.ts                   # Client-side SEO metadata
-  BulkVCard.tsx            # Bulk vCard generation page
+  app/
+    layout.tsx               # Root layout (ThemeProvider, fonts, globals)
+    page.tsx                 # Home — QR generator (default URL type)
+    [type]/page.tsx          # QR generator per type (url, text, wifi, etc.)
+    vcard/
+      page.tsx               # vCard QR generator
+      bulk/page.tsx          # Bulk vCard generation
+    blog/
+      page.tsx               # Blog listing with tag filtering
+      [slug]/page.tsx        # Blog post (MDX rendering, JSON-LD, ToC)
+    docs/mcp/page.tsx        # MCP server documentation
+    policies/
+      privacy/page.tsx       # Privacy policy
+      tos/page.tsx           # Terms of service
+    mcp/route.ts             # MCP endpoint (Streamable HTTP)
+    sitemap.ts               # Dynamic sitemap
+    robots.ts                # robots.txt
   components/
-    ui/                    # shadcn/ui primitives
-    AddressSearch.tsx      # Address autocomplete
+    ui/                      # shadcn/ui primitives
+    QRGenerator.tsx          # Main QR generator (client component)
+    BulkVCard.tsx            # Bulk vCard generator (client component)
+    AddressSearch.tsx        # Address autocomplete
+  content/blog/              # MDX blog posts
   lib/
-    qr-generator.ts        # QR generation logic
-    utils.ts               # cn() utility
-  cli/index.ts             # CLI entry point
-  mcp/server.ts            # MCP server entry point
-server.ts                  # Production Bun server (SEO injection, SPA fallback)
-scripts/generate-og-images.ts  # OG image generation (runs at build time)
+    qr-generator.ts          # QR generation logic
+    blog.ts                  # Blog content loading
+    utils.ts                 # cn() utility
+  qr-types.ts               # QR type definitions + encoders
+  vcard.ts                   # vCard encoding logic
+  seo.ts                     # Per-route SEO metadata
+  mcp/
+    tools.ts                 # Shared MCP tool definitions
+    stdio.ts                 # Stdio transport (local/Claude Code)
+    http.ts                  # HTTP transport handler
+  cli/index.ts               # CLI entry point
 ```
 
 ## License

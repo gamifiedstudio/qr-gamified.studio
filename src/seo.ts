@@ -125,9 +125,4 @@ export function getCanonicalURL(slug: string | undefined): string {
   return `${BASE_URL}/${slug}`;
 }
 
-export function getOGImageURL(slug: string | undefined): string {
-  if (!slug) return `${BASE_URL}/opengraph.png`;
-  return `${BASE_URL}/${slug}/opengraph.png`;
-}
-
 export { BASE_URL };
