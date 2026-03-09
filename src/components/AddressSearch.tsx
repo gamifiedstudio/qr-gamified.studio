@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { Address } from '../vcard';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 
 interface Props {
   onSelect: (address: Partial<Address>) => void;
@@ -30,6 +32,7 @@ export default function AddressSearch({ onSelect }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const abortRef = useRef<AbortController>(undefined);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const search = useCallback(async (q: string) => {
@@ -37,15 +40,20 @@ export default function AddressSearch({ onSelect }: Props) {
       setResults([]);
       return;
     }
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     setLoading(true);
     try {
       const res = await fetch(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lang=en`
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lang=en`,
+        { signal: controller.signal }
       );
       const data = await res.json();
       setResults(data.features || []);
       setOpen(true);
-    } catch {
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return;
       setResults([]);
     } finally {
       setLoading(false);
@@ -57,6 +65,14 @@ export default function AddressSearch({ onSelect }: Props) {
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => search(value), 300);
   };
+
+  // Cleanup timer and inflight requests on unmount
+  useEffect(() => {
+    return () => {
+      clearTimeout(timerRef.current);
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const handleSelect = (feature: PhotonFeature) => {
     const p = feature.properties;
@@ -90,28 +106,35 @@ export default function AddressSearch({ onSelect }: Props) {
   }, []);
 
   return (
-    <div className="address-search" ref={wrapperRef}>
-      <div className="address-search-input-wrap">
-        <input
-          value={query}
-          onChange={(e) => handleInput(e.target.value)}
-          onFocus={() => results.length > 0 && setOpen(true)}
-          placeholder="Search for an address or place..."
-          className="address-search-input"
-        />
-        {loading && <span className="address-search-spinner" />}
-      </div>
+    <div className="relative" ref={wrapperRef}>
+      <Input
+        value={query}
+        onChange={(e) => handleInput(e.target.value)}
+        onFocus={() => results.length > 0 && setOpen(true)}
+        placeholder="Search for an address or place..."
+      />
+      {loading && (
+        <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+        </div>
+      )}
       {open && results.length > 0 && (
-        <ul className="address-search-results">
-          {results.map((r, i) => (
-            <li key={i} onClick={() => handleSelect(r)}>
-              <span className="address-search-name">
-                {r.properties.name || r.properties.street || 'Unknown'}
-              </span>
-              <span className="address-search-detail">{formatDetail(r)}</span>
-            </li>
-          ))}
-        </ul>
+        <Card className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto py-1">
+          <ul className="divide-y divide-border">
+            {results.map((r, i) => (
+              <li
+                key={i}
+                onClick={() => handleSelect(r)}
+                className="cursor-pointer px-3 py-2 transition-colors hover:bg-muted/50"
+              >
+                <span className="block text-sm font-medium text-foreground">
+                  {r.properties.name || r.properties.street || 'Unknown'}
+                </span>
+                <span className="block text-xs text-muted-foreground">{formatDetail(r)}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
       )}
     </div>
   );
