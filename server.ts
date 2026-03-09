@@ -96,6 +96,21 @@ const PAGE_SEO: Record<string, PageSEO> = {
     keywords: 'bulk QR code generator, multiple vCard QR codes, batch QR code, bulk contact QR codes',
 
   },
+  'policies/privacy': {
+    title: 'Privacy Policy — QR Gamified Studio',
+    description: 'Privacy policy for QR Gamified Studio. We do not collect, store, or transmit any personal data. QR codes are generated client-side or in-memory.',
+    keywords: 'privacy policy, QR code generator privacy, data policy',
+  },
+  'policies/tos': {
+    title: 'Terms of Service — QR Gamified Studio',
+    description: 'Terms of service for QR Gamified Studio. Free QR code generator with web app, CLI, and MCP server.',
+    keywords: 'terms of service, QR code generator terms, usage terms',
+  },
+  'docs/mcp': {
+    title: 'MCP Server Documentation — vCard QR Code Generator',
+    description: 'Documentation for the vcard-qr MCP server. Generate vCard QR codes and contact data via the Model Context Protocol. Setup instructions, tool reference, and usage examples.',
+    keywords: 'MCP server documentation, vCard QR MCP, Model Context Protocol, QR code API',
+  },
 };
 
 const HOME_SEO: PageSEO = {
@@ -108,9 +123,9 @@ const HOME_SEO: PageSEO = {
 function getSEO(pathname: string): PageSEO {
   const slug = pathname.replace(/^\//, '').replace(/\/$/, '');
   if (!slug) return HOME_SEO;
-  // Handle nested routes like vcard/bulk
-  if (slug === 'vcard/bulk') return PAGE_SEO['vcard/bulk'] || HOME_SEO;
-  return PAGE_SEO[slug] || HOME_SEO;
+  // Handle nested routes
+  if (PAGE_SEO[slug]) return PAGE_SEO[slug];
+  return HOME_SEO;
 }
 
 function getCanonicalURL(pathname: string): string {

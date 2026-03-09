@@ -69,6 +69,24 @@ export async function generateQRToFile(
 }
 
 /**
+ * Generate a QR code PNG as base64 from a raw string.
+ */
+export async function generateQRFromStringBase64(
+  content: string,
+  opts: QROptions = {},
+): Promise<string> {
+  const o = { ...defaults, ...opts };
+  const buffer = await QRCode.toBuffer(content, {
+    type: 'png',
+    width: o.width,
+    margin: o.margin,
+    errorCorrectionLevel: o.errorCorrectionLevel,
+    color: { dark: o.darkColor, light: o.lightColor },
+  });
+  return buffer.toString('base64');
+}
+
+/**
  * Generate the raw vCard string without QR encoding.
  */
 export function generateVCardString(data: VCardData): string {
