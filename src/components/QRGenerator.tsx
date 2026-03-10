@@ -316,31 +316,33 @@ export default function QRGenerator({ type }: { type?: string }) {
 
           {/* ── Right: Preview + Style (fixed, own scroll) ── */}
           <div className="overflow-y-auto">
-            {/* QR Preview */}
-            <div className="border-b border-border px-6 py-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Preview</p>
-            </div>
-            <div className="border-b border-border p-6">
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative flex min-h-[280px] items-center justify-center">
-                  <div ref={qrRef} className="flex items-center justify-center" />
-                  {!ready && (
-                    <span className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-muted-foreground">
-                      Fill in the form to generate a QR code
-                    </span>
+            {/* QR Preview — sticky so it stays visible while scrolling style options */}
+            <div className="sticky top-0 z-10 bg-background">
+              <div className="border-b border-border px-6 py-4">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Preview</p>
+              </div>
+              <div className="border-b border-border p-6">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative flex min-h-[280px] items-center justify-center">
+                    <div ref={qrRef} className="flex items-center justify-center" />
+                    {!ready && (
+                      <span className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-muted-foreground">
+                        Fill in the form to generate a QR code
+                      </span>
+                    )}
+                  </div>
+
+                  {ready && (
+                    <div className="flex w-full gap-2">
+                      <Button className="flex-1" onClick={() => downloadQR('png')}>
+                        Download PNG
+                      </Button>
+                      <Button variant="outline" className="flex-1" onClick={() => downloadQR('svg')}>
+                        Download SVG
+                      </Button>
+                    </div>
                   )}
                 </div>
-
-                {ready && (
-                  <div className="flex w-full gap-2">
-                    <Button className="flex-1" onClick={() => downloadQR('png')}>
-                      Download PNG
-                    </Button>
-                    <Button variant="outline" className="flex-1" onClick={() => downloadQR('svg')}>
-                      Download SVG
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
 
