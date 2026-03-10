@@ -10,7 +10,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "cli": "bun run src/cli/index.ts",
     "mcp": "bun run src/mcp/stdio.ts",
     "indexnow": "bun run scripts/indexnow.ts"
