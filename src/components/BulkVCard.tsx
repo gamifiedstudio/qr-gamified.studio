@@ -63,6 +63,7 @@ const cornerDotTypes: { label: string; value: CornerDotType }[] = [
 type InputMode = 'csv' | 'json';
 
 const MAX_CONTACTS = 500;
+const VISIBLE_CONTACTS = 20;
 
 // ── CSV columns ──
 
@@ -420,6 +421,9 @@ export default function BulkVCard() {
   const [copied, setCopied] = useState<'prompt' | 'example' | null>(null);
   const qrRef = useRef<HTMLDivElement>(null);
   const qrCode = useRef<QRCodeStyling | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showAllContacts, setShowAllContacts] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   const { contacts, errors } = useMemo(
     () => mode === 'csv' ? parseCSVContacts(input) : parseJSONContacts(input),
@@ -502,6 +506,41 @@ export default function BulkVCard() {
     setMode(newMode);
   };
 
+  // File upload handler
+  const handleFileUpload = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result as string;
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      setMode(ext === 'json' ? 'json' : 'csv');
+      setInput(text);
+    };
+    reader.readAsText(file);
+  }, []);
+
+  const onFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFileUpload(file);
+    e.target.value = '';
+  }, [handleFileUpload]);
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(true);
+  }, []);
+
+  const onDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+  }, []);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileUpload(file);
+  }, [handleFileUpload]);
+
   // Bulk download
   const downloadZip = useCallback(async () => {
     if (contacts.length === 0) return;
@@ -520,6 +559,12 @@ export default function BulkVCard() {
         if (blob) {
           const filename = getContactFilename(contacts[i], i);
           zip.file(`${filename}.png`, blob);
+        }
+
+        // Yield main thread every 10 contacts to allow GC and UI updates
+        // Prevents canvas memory exhaustion on large batches
+        if ((i + 1) % 10 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 0));
         }
       }
 
@@ -548,6 +593,12 @@ export default function BulkVCard() {
 
   const aiPrompt = mode === 'csv' ? CSV_AI_PROMPT : JSON_AI_PROMPT;
   const example = mode === 'csv' ? CSV_EXAMPLE : JSON_EXAMPLE;
+
+  useEffect(() => setShowAllContacts(false), [contacts.length]);
+
+  const visibleContacts = contacts.length > VISIBLE_CONTACTS && !showAllContacts
+    ? contacts.slice(0, VISIBLE_CONTACTS)
+    : contacts;
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
@@ -653,22 +704,46 @@ export default function BulkVCard() {
                   <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Contact Data ({mode === 'csv' ? 'CSV' : 'JSON'})
                   </h3>
-                  {input.trim() && (
-                    <Button variant="ghost" size="sm" onClick={() => setInput('')} className="text-xs text-muted-foreground">
-                      Clear
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="text-xs text-muted-foreground">
+                      Upload File
                     </Button>
+                    {input.trim() && (
+                      <Button variant="ghost" size="sm" onClick={() => setInput('')} className="text-xs text-muted-foreground">
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,.json,.txt"
+                  onChange={onFileInputChange}
+                  className="sr-only"
+                />
+                <div
+                  className={`relative rounded-md ${dragging ? 'ring-2 ring-primary' : ''}`}
+                  onDragOver={onDragOver}
+                  onDragLeave={onDragLeave}
+                  onDrop={onDrop}
+                >
+                  <Textarea
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    placeholder={mode === 'csv'
+                      ? `Paste CSV here or drag & drop a file...\n\n${CSV_EXAMPLE}`
+                      : `Paste JSON here or drag & drop a file...\n\n${JSON_EXAMPLE}`
+                    }
+                    rows={16}
+                    className="font-mono text-xs"
+                  />
+                  {dragging && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-md bg-primary/10 border-2 border-dashed border-primary pointer-events-none">
+                      <span className="text-sm font-medium text-primary">Drop file here</span>
+                    </div>
                   )}
                 </div>
-                <Textarea
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  placeholder={mode === 'csv'
-                    ? `Paste your CSV here...\n\n${CSV_EXAMPLE}`
-                    : `Paste your JSON array here...\n\n${JSON_EXAMPLE}`
-                  }
-                  rows={16}
-                  className="font-mono text-xs"
-                />
                 {mode === 'csv' && !input.trim() && (
                   <div className="text-xs text-muted-foreground/60 space-y-1">
                     <p><span className="font-medium text-muted-foreground">Phone:</span> +1234567890 or CELL:+123|WORK:+456</p>
@@ -697,7 +772,7 @@ export default function BulkVCard() {
                 <div className="space-y-2">
                   <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Contacts</h3>
                   <div className="space-y-1.5">
-                    {contacts.map((c, i) => {
+                    {visibleContacts.map((c, i) => {
                       const displayName = [c.prefix, c.firstName, c.lastName, c.suffix].filter(Boolean).join(' ');
                       const detail = [c.title, c.org].filter(Boolean).join(' at ');
                       return (
@@ -717,6 +792,19 @@ export default function BulkVCard() {
                       );
                     })}
                   </div>
+                  {contacts.length > VISIBLE_CONTACTS && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAllContacts(!showAllContacts)}
+                      className="w-full text-xs text-muted-foreground"
+                    >
+                      {showAllContacts
+                        ? 'Show less'
+                        : `Show all ${contacts.length} contacts (${contacts.length - VISIBLE_CONTACTS} more)`
+                      }
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
