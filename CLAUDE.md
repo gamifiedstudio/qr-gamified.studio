@@ -1,13 +1,13 @@
 # QR Code Generator (BTI)
 
-Multi-format QR code generator with web app, blog, CLI, and MCP server. Next.js 15 App Router with standalone output for Railway.
+Multi-format QR code generator with web app, blog, CLI, and MCP server. Next.js 15 App Router deployed on Railway.
 
 ## Commands
 
 ```bash
 bun dev          # Next.js dev server (Turbopack) :3000
-bun build        # Next.js production build (standalone output)
-bun start        # Production server (node .next/standalone/server.js)
+bun build        # Next.js production build
+bun start        # Production server (next start)
 bun run cli      # CLI tool
 bun run mcp      # MCP server (stdio, for local/Claude Code)
                    # Remote MCP: served at /mcp via Next.js route handler
@@ -103,18 +103,18 @@ This project is **already linked** via `~/.railway/config.json`.
 | ------------- | ---------------------------------------------- |
 | Project       | `b04ab144-8e1f-43aa-bf69-49f834795fc0`         |
 | Service       | `ae57155f-d822-4e0f-bf53-9e9e77f97924`         |
-| Service name  | `bti-vcard-qr`                                 |
+| Service name  | `qr-generator`                                 |
 | Environment   | `bb472f06-db63-4fb8-a53c-b5689d04fa28` (prod)  |
 | Domain        | `qr.gamified.studio`                           |
 
-**Standalone deploy**: `bun build` produces `.next/standalone/`. Start with `node .next/standalone/server.js`. Copy static assets post-build: `cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static`.
+**Deploy**: Railpack builds with `bun run build`, starts with `npx next start`. Config in `railway.toml`.
 
 ## Cloudflare
 
 | Key     | Value                              |
 | ------- | ---------------------------------- |
 | Zone    | `ed1e713c326cd1afcd60de9178bf26c3` (gamified.studio) |
-| CNAME   | `qr` → `1j40mwg6.up.railway.app`  |
+| CNAME   | `qr` → `oh833lgm.up.railway.app`  |
 
 ## Linear
 

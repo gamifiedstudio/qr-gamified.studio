@@ -1,0 +1,10 @@
+[build]
+builder = "railpack"
+buildCommand = "bun run build"
+
+[deploy]
+startCommand = "npx next start"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
