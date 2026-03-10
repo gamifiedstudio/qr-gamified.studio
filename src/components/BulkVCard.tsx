@@ -437,14 +437,14 @@ export default function BulkVCard() {
   }, [contacts]);
 
   useEffect(() => {
+    if (!firstEncoded) {
+      qrCode.current = null;
+      return;
+    }
     if (!qrRef.current) return;
+    const el = qrRef.current;
     const timer = setTimeout(() => {
       try {
-        if (!firstEncoded) {
-          qrRef.current!.innerHTML = '';
-          qrCode.current = null;
-          return;
-        }
         qrCode.current = new QRCodeStyling({
           width: 280,
           height: 280,
@@ -468,8 +468,8 @@ export default function BulkVCard() {
             },
           } : {}),
         });
-        qrRef.current!.innerHTML = '';
-        qrCode.current.append(qrRef.current!);
+        el.innerHTML = '';
+        qrCode.current.append(el);
       } catch (e) {
         console.warn('QR render failed:', e);
       }
@@ -820,14 +820,13 @@ export default function BulkVCard() {
             </div>
             <div className="border-b border-border p-6">
               <div className="flex flex-col items-center gap-4">
-                <div
-                  ref={qrRef}
-                  className="flex min-h-[280px] items-center justify-center"
-                >
-                  {contacts.length === 0 && (
+                <div className="flex min-h-[280px] items-center justify-center">
+                  {contacts.length === 0 ? (
                     <span className="px-4 text-center text-sm text-muted-foreground">
                       Paste contact data to preview
                     </span>
+                  ) : (
+                    <div ref={qrRef} />
                   )}
                 </div>
 
