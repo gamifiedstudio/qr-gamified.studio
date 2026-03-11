@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { ThemeProvider } from 'next-themes';
 import '@fontsource-variable/geist';
 import '@/index.css';
+
+const GA_ID = 'G-R2J5HK6LX2';
 
 const BASE_URL = 'https://qr.gamified.studio';
 
@@ -35,6 +38,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
+      </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
