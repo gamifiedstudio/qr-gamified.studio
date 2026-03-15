@@ -118,7 +118,16 @@ This project is **already linked** via `~/.railway/config.json`.
 
 ## Linear
 
-Team **BTI** — use `BTI-` prefix for commit messages.
+| Key        | Value                                          |
+| ---------- | ---------------------------------------------- |
+| Team       | **Gamified** (key: `GS`)                       |
+| Team ID    | `70a7f593-d6be-4c30-bdbb-2df59cd81cce`         |
+| Project    | **qr-gamified.studio**                         |
+| Project ID | `ce88fedd-7cdb-4773-bf58-7af77261f614`         |
+| Lead       | So Kanon                                       |
+| URL        | https://linear.app/gamifiedstudio/project/qr-gamifiedstudio-473292c82fa2 |
+
+Use `GS-` prefix for commit messages.
 
 ## No Tests
 
