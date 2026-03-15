@@ -1,19 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Terminal, Globe, Copy, Check } from 'lucide-react';
+import { Terminal, Globe, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 
 function CopyBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="relative group">
-      <pre className="rounded-lg bg-[var(--muted)] p-4 text-sm overflow-x-auto">
+      <pre className="bg-[var(--muted)] p-4 text-sm overflow-x-auto">
         <code>{code}</code>
       </pre>
       <button
         onClick={() => { navigator.clipboard.writeText(code); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-        className="absolute top-3 right-3 p-1.5 rounded-md bg-[var(--background)] border border-[var(--border)] opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-3 right-3 p-1.5 bg-[var(--background)] border border-[var(--border)] opacity-0 group-hover:opacity-100 transition-opacity"
         aria-label="Copy"
       >
         {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
@@ -24,7 +24,7 @@ function CopyBlock({ code }: { code: string }) {
 
 function ToolCard({ name, description, params }: { name: string; description: string; params: string }) {
   return (
-    <div className="rounded-lg border border-[var(--border)] p-4">
+    <div className="border border-[var(--border)] p-4">
       <div className="flex items-center gap-3 mb-1.5">
         <code className="text-sm font-semibold">{name}</code>
         <span className="rounded-full bg-green-500/10 text-green-600 px-2 py-0.5 text-xs font-medium">read-only</span>
@@ -39,16 +39,8 @@ function ToolCard({ name, description, params }: { name: string; description: st
 
 export default function McpDocs() {
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <div className="flex-1 overflow-y-auto">
       <div className="mx-auto max-w-3xl px-6 py-12">
-        <Link
-          href="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to QR Generator
-        </Link>
-
         <h1 className="text-3xl font-bold tracking-tight mb-2">MCP Server Documentation</h1>
         <p className="text-[var(--muted-foreground)] mb-10">
           Generate QR codes for URLs, contacts, WiFi, events, and more via the Model Context Protocol.
@@ -111,7 +103,7 @@ export default function McpDocs() {
   }
 }`} />
               <p className="text-sm text-[var(--muted-foreground)] mt-2">
-                The local version includes an additional <code className="rounded bg-[var(--muted)] px-1.5 py-0.5 text-xs">generate_vcard_qr_file</code> tool
+                The local version includes an additional <code className="bg-[var(--muted)] px-1.5 py-0.5 text-xs">generate_vcard_qr_file</code> tool
                 that saves QR codes directly to disk.
               </p>
             </div>
@@ -124,7 +116,7 @@ export default function McpDocs() {
 
           <div className="space-y-6">
             {/* generate_vcard_qr — full detail */}
-            <div className="rounded-lg border border-[var(--border)] p-5">
+            <div className="border border-[var(--border)] p-5">
               <div className="flex items-center gap-3 mb-2">
                 <code className="text-sm font-semibold">generate_vcard_qr</code>
                 <span className="rounded-full bg-green-500/10 text-green-600 px-2 py-0.5 text-xs font-medium">read-only</span>
@@ -151,8 +143,8 @@ export default function McpDocs() {
                     <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">suffix</td><td className="py-2 pr-4">string?</td><td className="py-2">Name suffix (Jr., PhD)</td></tr>
                     <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">org</td><td className="py-2 pr-4">string?</td><td className="py-2">Organization / company</td></tr>
                     <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">title</td><td className="py-2 pr-4">string?</td><td className="py-2">Job title</td></tr>
-                    <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">phones</td><td className="py-2 pr-4">array?</td><td className="py-2">Phone numbers — each with <code className="text-xs bg-[var(--muted)] px-1 rounded">type</code> (CELL, WORK, HOME, FAX) and <code className="text-xs bg-[var(--muted)] px-1 rounded">value</code></td></tr>
-                    <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">emails</td><td className="py-2 pr-4">array?</td><td className="py-2">Email addresses — each with <code className="text-xs bg-[var(--muted)] px-1 rounded">type</code> (WORK, HOME) and <code className="text-xs bg-[var(--muted)] px-1 rounded">value</code></td></tr>
+                    <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">phones</td><td className="py-2 pr-4">array?</td><td className="py-2">Phone numbers — each with <code className="text-xs bg-[var(--muted)] px-1">type</code> (CELL, WORK, HOME, FAX) and <code className="text-xs bg-[var(--muted)] px-1">value</code></td></tr>
+                    <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">emails</td><td className="py-2 pr-4">array?</td><td className="py-2">Email addresses — each with <code className="text-xs bg-[var(--muted)] px-1">type</code> (WORK, HOME) and <code className="text-xs bg-[var(--muted)] px-1">value</code></td></tr>
                     <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">addresses</td><td className="py-2 pr-4">array?</td><td className="py-2">Postal addresses — street, city, state, zip, country, poBox, geo (lat,lng)</td></tr>
                     <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">url</td><td className="py-2 pr-4">string?</td><td className="py-2">Website URL</td></tr>
                     <tr className="border-b border-[var(--border)]"><td className="py-2 pr-4 font-mono text-xs">note</td><td className="py-2 pr-4">string?</td><td className="py-2">Additional notes</td></tr>
@@ -171,7 +163,7 @@ export default function McpDocs() {
             </div>
 
             {/* generate_vcard_text */}
-            <div className="rounded-lg border border-[var(--border)] p-5">
+            <div className="border border-[var(--border)] p-5">
               <div className="flex items-center gap-3 mb-2">
                 <code className="text-sm font-semibold">generate_vcard_text</code>
                 <span className="rounded-full bg-green-500/10 text-green-600 px-2 py-0.5 text-xs font-medium">read-only</span>
@@ -181,7 +173,7 @@ export default function McpDocs() {
                 embedding contact data in other formats.
               </p>
               <p className="text-sm text-[var(--muted-foreground)]">
-                Accepts the same contact parameters as <code className="text-xs bg-[var(--muted)] px-1 rounded">generate_vcard_qr</code> (excluding
+                Accepts the same contact parameters as <code className="text-xs bg-[var(--muted)] px-1">generate_vcard_qr</code> (excluding
                 width, darkColor, lightColor). Returns the vCard string as plain text.
               </p>
             </div>
@@ -190,7 +182,7 @@ export default function McpDocs() {
             <div>
               <h3 className="text-base font-semibold mb-1">All QR Tools</h3>
               <p className="text-sm text-[var(--muted-foreground)] mb-4">
-                All QR tools below also accept optional styling parameters: <code className="text-xs bg-[var(--muted)] px-1 rounded">width</code> (number, default 800), <code className="text-xs bg-[var(--muted)] px-1 rounded">darkColor</code> (hex string), and <code className="text-xs bg-[var(--muted)] px-1 rounded">lightColor</code> (hex string). Each returns a base64-encoded PNG image.
+                All QR tools below also accept optional styling parameters: <code className="text-xs bg-[var(--muted)] px-1">width</code> (number, default 800), <code className="text-xs bg-[var(--muted)] px-1">darkColor</code> (hex string), and <code className="text-xs bg-[var(--muted)] px-1">lightColor</code> (hex string). Each returns a base64-encoded PNG image.
               </p>
 
               <div className="grid gap-3">
@@ -341,7 +333,7 @@ export default function McpDocs() {
           <h2 className="text-xl font-semibold mb-3">Technical Details</h2>
           <ul className="space-y-2 text-sm">
             <li><strong>Protocol:</strong> MCP (Model Context Protocol) over Streamable HTTP</li>
-            <li><strong>Endpoint:</strong> <code className="rounded bg-[var(--muted)] px-1.5 py-0.5 text-xs">https://qr.gamified.studio/mcp</code></li>
+            <li><strong>Endpoint:</strong> <code className="bg-[var(--muted)] px-1.5 py-0.5 text-xs">https://qr.gamified.studio/mcp</code></li>
             <li><strong>Authentication:</strong> None required</li>
             <li><strong>Session:</strong> Stateful (UUID-based session IDs)</li>
             <li><strong>vCard format:</strong> vCard 3.0 (RFC 2426)</li>

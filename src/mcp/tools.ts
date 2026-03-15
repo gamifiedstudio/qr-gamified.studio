@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { type VCardData } from '../vcard';
 import { generateQRBase64, generateQRFromStringBase64, generateVCardString } from '../lib/qr-generator';
+import { SKIN_NAMES, resolveColors } from '../skins';
 
 const AddressSchema = z.object({
   type: z.enum(['WORK', 'HOME']).default('WORK'),
@@ -98,8 +99,9 @@ export function registerTools(server: McpServer) {
     {
       ...contactParams,
       width: z.number().optional().default(800).describe('QR image width in pixels'),
-      darkColor: z.string().optional().default('#000000').describe('QR dot color (hex)'),
-      lightColor: z.string().optional().default('#ffffff').describe('QR background color (hex)'),
+      skin: z.enum(SKIN_NAMES).optional().describe('Color preset: classy, elegant, midnight, ocean, sunset, neon, rose, inverted'),
+      darkColor: z.string().optional().describe('QR dot color (hex). Overrides skin if both provided.'),
+      lightColor: z.string().optional().describe('QR background color (hex). Overrides skin if both provided.'),
     },
     {
       title: 'Generate vCard QR Code',
@@ -113,8 +115,7 @@ export function registerTools(server: McpServer) {
 
       const base64 = await generateQRBase64(data, {
         width: params.width,
-        darkColor: params.darkColor,
-        lightColor: params.lightColor,
+        ...resolveColors(params),
       });
 
       const vcard = generateVCardString(data);
@@ -164,8 +165,9 @@ export function registerTools(server: McpServer) {
   // ── Style params shared by all QR tools ──
   const styleParams = {
     width: z.number().optional().default(800).describe('QR image width in pixels'),
-    darkColor: z.string().optional().default('#000000').describe('QR dot color (hex)'),
-    lightColor: z.string().optional().default('#ffffff').describe('QR background color (hex)'),
+    skin: z.enum(SKIN_NAMES).optional().describe('Color preset: classy, elegant, midnight, ocean, sunset, neon, rose, inverted'),
+    darkColor: z.string().optional().describe('QR dot color (hex). Overrides skin if both provided.'),
+    lightColor: z.string().optional().describe('QR background color (hex). Overrides skin if both provided.'),
   };
 
   const readOnlyAnnotations = {
@@ -190,7 +192,7 @@ export function registerTools(server: McpServer) {
       if (!url) return { content: [{ type: 'text' as const, text: 'Error: URL is required' }] };
 
       const base64 = await generateQRFromStringBase64(url, {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -215,7 +217,7 @@ export function registerTools(server: McpServer) {
       if (!params.text.trim()) return { content: [{ type: 'text' as const, text: 'Error: Text is required' }] };
 
       const base64 = await generateQRFromStringBase64(params.text, {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -249,7 +251,7 @@ export function registerTools(server: McpServer) {
       str += ';';
 
       const base64 = await generateQRFromStringBase64(str, {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -282,7 +284,7 @@ export function registerTools(server: McpServer) {
       const mailto = `mailto:${params.to.trim()}${query}`;
 
       const base64 = await generateQRFromStringBase64(mailto, {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -307,7 +309,7 @@ export function registerTools(server: McpServer) {
       if (!params.phone.trim()) return { content: [{ type: 'text' as const, text: 'Error: Phone number is required' }] };
 
       const base64 = await generateQRFromStringBase64(`tel:${params.phone.trim()}`, {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -337,7 +339,7 @@ export function registerTools(server: McpServer) {
       const smsStr = msg ? `SMSTO:${phone}:${msg}` : `SMSTO:${phone}`;
 
       const base64 = await generateQRFromStringBase64(smsStr, {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -393,7 +395,7 @@ export function registerTools(server: McpServer) {
       lines.push('END:VEVENT');
 
       const base64 = await generateQRFromStringBase64(lines.join('\r\n'), {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -440,7 +442,7 @@ export function registerTools(server: McpServer) {
       const name = [params.firstName, params.lastName].filter(Boolean).join(' ');
 
       const base64 = await generateQRFromStringBase64(str, {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -468,7 +470,7 @@ export function registerTools(server: McpServer) {
       const url = `https://x.com/${username}`;
 
       const base64 = await generateQRFromStringBase64(url, {
-        width: params.width, darkColor: params.darkColor, lightColor: params.lightColor,
+        width: params.width, ...resolveColors(params),
       });
 
       return {
@@ -485,6 +487,29 @@ export function createMcpServer() {
   const server = new McpServer({
     name: 'qr-generator',
     version: '1.0.0',
+  }, {
+    instructions: [
+      'You are connected to the qr-generator MCP server at qr.gamified.studio.',
+      'It generates QR code images (base64 PNG) for various data types.',
+      '',
+      'Tool selection guide:',
+      '- Contact card → generate_vcard_qr (full fields: name, org, phones, emails, addresses with GPS, notes)',
+      '- Lightweight contact → generate_mecard_qr (name, phone, email, org — smaller QR code)',
+      '- Raw .vcf text → generate_vcard_text (no image, just vCard string)',
+      '- Website link → generate_url_qr',
+      '- Plain text → generate_text_qr',
+      '- WiFi credentials → generate_wifi_qr (SSID, password, encryption type)',
+      '- Pre-filled email → generate_email_qr (to, subject, body)',
+      '- Phone dial → generate_phone_qr',
+      '- Pre-filled SMS → generate_sms_qr',
+      '- Calendar event → generate_event_qr (title, dates, location, all-day support)',
+      '- X/Twitter profile → generate_xprofile_qr',
+      '',
+      'Style options: all QR tools accept optional "skin" (classy, elegant, midnight, ocean, sunset, neon, rose, inverted)',
+      'or explicit "darkColor"/"lightColor" hex values. Default is black on white.',
+      '',
+      'No authentication required. All processing is stateless — no data is stored.',
+    ].join('\n'),
   });
   registerTools(server);
   return server;

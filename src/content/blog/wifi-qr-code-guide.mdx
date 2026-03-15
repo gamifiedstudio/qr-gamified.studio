@@ -1,0 +1,197 @@
+---
+title: "WiFi QR Code: Share Your Network Instantly"
+description: "Generate WiFi QR codes that let guests join your network instantly — no typing passwords. Perfect for offices, Airbnbs, cafes, and events."
+date: "2026-03-14"
+author: "So"
+tags: ["QR Codes", "Guide"]
+readTime: 7
+---
+
+## What is a WiFi QR code?
+
+**Quick answer:** A WiFi QR code packs your network name, password, and encryption type into a scannable image. Someone points their phone camera at it, taps "Join," and they're on your network. No spelling out `xK7$mP_2q` letter by letter.
+
+Phones have understood this format for years now. Android picked it up in version 10, iOS in 11. Just the built-in camera.
+
+Under the hood, the encoded string looks like this:
+
+```text
+WIFI:T:WPA;S:NetworkName;P:Password;;
+```
+
+That tells the phone the encryption type, SSID, and password. Nothing else to it.
+
+---
+
+## How the format works
+
+A WiFi QR code has four fields. Only the network name is strictly required.
+
+| Field | Key | Description | Example |
+|-------|-----|-------------|---------|
+| Encryption | `T` | Security protocol | `WPA`, `WEP`, `nopass` |
+| Network name | `S` | Your SSID | `CafeWiFi` |
+| Password | `P` | Network password | `welcome2024` |
+| Hidden | `H` | Hidden network flag | `true` (optional) |
+
+Both WPA2 and WPA3 networks use `T:WPA` in the encoding. The phone and router figure out which version to use on their own.
+
+| Type | Security | When you'd use it |
+|------|----------|----------|
+| WPA | Strong (WPA2/WPA3) | Home, office, most networks |
+| WEP | Weak (deprecated) | Legacy devices only |
+| nopass | None | Open/public networks |
+
+If you're still on WEP, switch. It was cracked ages ago and every router sold in the last twenty years supports WPA2 at minimum.
+
+---
+
+## Where this actually gets used
+
+The use case is always some version of "people need WiFi here and I'm tired of spelling the password."
+
+### Restaurants and cafes
+
+This is the most common one I see. Print the QR code on a table tent, a sticker on the counter, or directly on the [menu itself](/blog/qr-codes-restaurant-menus). Your staff will thank you for not having to say "all lowercase, no spaces" forty times a shift. I've worked with a few cafe owners who laminate a small card with the QR code and tape it to each table. Survives spills, easy to swap when the password changes.
+
+### Airbnbs and short-term rentals
+
+Stick the QR code in the welcome binder or frame it on the wall near the entryway. Guests connect when they walk in instead of texting you at midnight asking for the password. If you manage multiple properties, the CLI tool is useful here. You can script generation for each property and keep the output files organized by address.
+
+### Offices
+
+Most offices have a guest network already, but the password lives on a Post-it note at reception that nobody updates. A framed QR code in the lobby or meeting rooms is a clean replacement. For coworking spaces, I'd put one at each desk cluster. People expect WiFi to just work, and fumbling with a 16-character password on a phone keyboard is a bad first impression.
+
+### Events and conferences
+
+Conferences are a pain point for WiFi. You have hundreds of people who all need to connect in the first ten minutes. Print the QR code on the badge lanyard, project it on a screen during the welcome session, or include it in the event app. Temporary event networks are perfect for this since you don't care about the password leaking after the event ends.
+
+### Retail and waiting rooms
+
+Dental offices, car dealerships, hair salons. Anywhere people sit and wait, they want WiFi. A small sign in the waiting area with a QR code saves your receptionist from repeating credentials all day. I've seen a dentist's office put the QR code right on the ceiling above the chair, which is honestly kind of brilliant.
+
+---
+
+## How to generate one
+
+### Web app
+
+Head to [qr.gamified.studio/wifi](/wifi). Fill in your network name, password, and encryption type. Customize the look if you want. Download as PNG for screens or SVG for print (SVG scales to any size without getting blurry). The tool is [completely free](/blog/free-qr-code-generator) with no watermarks or sign-up.
+
+### CLI
+
+If you'd rather work from the terminal:
+
+```bash
+bun run cli --type wifi \
+  --ssid "OfficeGuest" \
+  --password "welcome2024" \
+  --encryption WPA \
+  -o office-wifi.png
+```
+
+This is the better option if you need to automate anything, like rotating guest passwords monthly or generating codes for multiple office locations.
+
+### MCP server
+
+The [MCP server](/docs/mcp) lets AI assistants like Claude generate WiFi QR codes through plain language:
+
+> "Generate a WiFi QR code for network CafeWiFi with password freshbrew99, use the sunset skin."
+
+The remote endpoint is at `qr.gamified.studio/mcp`. For local use with Claude Code, run `bun run mcp` over stdio.
+
+---
+
+## Security
+
+The password sits inside the QR code as plain text. Anyone who scans it, or even just photographs it, has your credentials. So don't put your main network password on a poster in the lobby.
+
+Set up a guest network instead. Most routers let you create a separate guest SSID that's isolated from your primary network and your devices. Put the QR code on *that* network.
+
+If you rotate your guest password (and you probably should, at least monthly for public-facing spaces), just regenerate the QR code and reprint it. The old code will still scan fine, but the password won't match anymore, so the connection fails silently.
+
+Don't use WEP. I know it's technically an option in the spec, but WEP can be cracked in minutes with tools anyone can download. Stick with WPA.
+
+And don't rely on hiding your SSID as a security measure. Setting `H:true` just means the phone will look for a hidden network, but anyone running a WiFi analyzer can see hidden networks anyway. A strong password is what actually protects you.
+
+One more thing: think about where you physically put the QR code. A sign facing the street lets anyone walking by connect. Keep it somewhere only the people you want on the network can reach it.
+
+---
+
+## Printing tips
+
+A QR code that won't scan is worse than no QR code, because now someone is standing there annoyed instead of just asking for the password.
+
+Print at minimum 2cm x 2cm. If people are scanning from a few feet away (a wall sign in a conference room, say), go 5cm or bigger.
+
+Keep the contrast high. Dark on light. Black on white is the most reliable, and if you use brand colors, make sure they're not too close in brightness. Two pastels next to each other won't scan. I wrote a full breakdown of [QR code design best practices](/blog/qr-code-design-best-practices) if you want the details on color, sizing, and error correction.
+
+If you put a logo in the center, bump up the error correction level so the QR code can tolerate the obscured area. The [web app](/wifi) does this automatically.
+
+And label it. "Scan for WiFi" or "Guest WiFi" next to the code. Not everyone immediately recognizes what a QR code is for without a hint.
+
+---
+
+## Troubleshooting
+
+WiFi QR codes are simple, but a few things can go wrong. Here's what I've run into.
+
+### The QR code won't scan at all
+
+Usually a printing issue. If the code is too small, the camera can't resolve it. Bump it up to at least 3cm for close-range scanning. If you printed on a glossy surface, glare from overhead lighting might be the problem. Matte finishes scan more reliably. Also check that the image didn't get compressed when you uploaded it somewhere. JPEG artifacts can destroy a QR code. Use PNG or SVG.
+
+### It scans but the phone doesn't connect
+
+The most common cause is a mismatch between what's in the QR code and what the router is actually broadcasting. Check three things: the SSID is spelled exactly right (case-sensitive), the password matches, and the encryption type is correct. I've seen people set `T:WPA` when their router was running an open network, or vice versa. The phone won't tell you what went wrong. It just fails silently.
+
+### It worked before but stopped
+
+Someone changed the WiFi password. The QR code still contains the old one. Regenerate it with the new credentials. This is the single most common support request I hear about.
+
+### Only some phones can connect
+
+Older phones running Android 9 or earlier can't read WiFi QR codes natively. They need a third-party QR scanner app. There's not much you can do about this except keep the password posted somewhere as a fallback. On iOS, the cutoff is iOS 11, which covers every iPhone from the 5s onward.
+
+### The network name has special characters
+
+If your SSID contains semicolons, colons, backslashes, or commas, they need to be escaped with a backslash in the QR encoding. The [web app](/wifi) handles this for you, but if you're building the string manually, watch out for it. An unescaped semicolon will terminate the field early and corrupt the whole code.
+
+---
+
+## Updating when your password changes
+
+If you rotate passwords regularly (and you should for any guest-facing network), you need a process for updating the QR code too. Otherwise you end up with a framed code in the lobby that hasn't worked in three months.
+
+For a single location, it's straightforward. Go to [qr.gamified.studio/wifi](/wifi), enter the new credentials, download the file, and reprint. I keep the same filename each time so I can just drop it into the same print template.
+
+For multiple locations or automated rotation, the CLI is better. You can write a short script that reads the new password from your router's API or a config file, generates the QR code, and outputs it to a shared drive. I've helped a coworking space set this up with a cron job that runs on the first of each month. The new QR code gets emailed to the office manager, who prints and swaps it. Total hands-off after the initial setup.
+
+One thing to keep in mind: anyone who connected using the old QR code will get disconnected when the password changes. Their phone saved the old credentials. They'll need to scan the new code. This is actually a feature if you're running a guest network at a rental property, since it ensures previous guests lose access.
+
+---
+
+## Frequently asked questions
+
+### Q: Does the WiFi QR code work on both iPhone and Android?
+
+Both. iOS has supported them since iOS 11 (2017), Android since version 10 (2019). You scan with the built-in camera app on either platform.
+
+### Q: What happens if I change my WiFi password?
+
+The old QR code still scans, but the password it contains won't match your network anymore. You'll need to generate a new one and swap out whatever you had printed.
+
+### Q: Can someone steal my WiFi password from the QR code?
+
+Yes, the password is right there in plain text. This is exactly why you should only share a guest network via QR, not your main one.
+
+### Q: Do WiFi QR codes work with WPA3?
+
+`T:WPA` in the encoding covers all three: WPA, WPA2, and WPA3. The phone and router negotiate the strongest protocol they both support.
+
+### Q: Can I generate WiFi QR codes in bulk?
+
+The CLI (`bun run cli`) is the way to go for batch generation. You can also hit the [MCP server](/docs/mcp) programmatically. The [web app](/wifi) handles one at a time.
+
+### Q: Does the QR code need an internet connection to work?
+
+Nope. The QR code is just a static image with credentials in it. Everything happens locally between the phone and your router, with nothing phoning home.

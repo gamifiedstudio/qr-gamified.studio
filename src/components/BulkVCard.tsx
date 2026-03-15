@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import Link from 'next/link';
 import QRCodeStyling, { type DotType, type CornerSquareType, type CornerDotType } from 'qr-code-styling';
 import JSZip from 'jszip';
 import { type VCardData, type PhoneEntry, type EmailEntry, type Address, buildVCard, hasMinimumData } from '@/vcard';
@@ -601,25 +600,9 @@ export default function BulkVCard() {
     : contacts;
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <div className="mx-auto w-full max-w-7xl border-x border-border flex flex-col flex-1 min-h-0">
-        {/* Header */}
-        <header className="shrink-0 border-b border-border px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/vcard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                &larr; Back
-              </Link>
-              <div className="w-px h-4 bg-border" />
-              <h1 className="text-sm font-semibold tracking-wide uppercase text-foreground">
-                Bulk vCard QR Generator
-              </h1>
-            </div>
-          </div>
-        </header>
-
-        {/* Main grid: input | preview+style */}
-        <div className="grid flex-1 min-h-0 lg:grid-cols-[1fr_360px]">
+    <>
+      {/* Main grid: input | preview+style */}
+      <div className="grid flex-1 min-h-0 lg:grid-cols-[1fr_360px]">
 
           {/* ── Left: Input panel ── */}
           <div className="border-b border-border lg:border-b-0 lg:border-r border-border overflow-y-auto">
@@ -1051,28 +1034,6 @@ export default function BulkVCard() {
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="shrink-0 border-t border-border px-6 py-4">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              Made by
-              <a href="https://github.com/Sokanon" target="_blank" rel="noopener noreferrer" className="group/so inline-flex items-center gap-1.5 text-foreground">
-                <img src="https://avatars.githubusercontent.com/u/53493508?v=4" alt="So" className="h-4 w-4 rounded-full" />
-                <span className="hand-underline">So</span>
-              </a>
-              from
-              <a href="https://gamified.studio" target="_blank" rel="noopener noreferrer" className="group/gs inline-flex items-center gap-1.5 text-foreground">
-                <img src="https://avatars.githubusercontent.com/u/164414310?v=4" alt="Gamified Studio" className="h-4 w-4 rounded-full" />
-                <span className="hand-underline">Gamified.studio</span>
-              </a>
-            </span>
-            <a href="https://railway.com?referralCode=_xv-mn" target="_blank" rel="noopener noreferrer" className="hidden sm:inline-flex items-center gap-1.5 text-foreground">
-              <img src="https://avatars.githubusercontent.com/u/66716858?s=200&v=4" alt="Railway" className="h-4 w-4 rounded-full" />
-              <span className="hand-underline">Deployed on Railway</span>
-            </a>
-          </div>
-        </footer>
-      </div>
-    </div>
+    </>
   );
 }

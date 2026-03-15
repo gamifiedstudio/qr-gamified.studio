@@ -1,0 +1,185 @@
+---
+title: "Free QR Code Generator: No Limits"
+description: "Generate unlimited QR codes for free — URLs, vCards, WiFi, events, and more. No account, no watermarks, PNG and SVG export, full customization included."
+date: "2026-03-09"
+author: "So"
+tags: ["QR Codes", "Guide"]
+readTime: 7
+---
+
+## You shouldn't have to make an account to generate a QR code
+
+**Quick answer:** [QR Gamified Studio](https://qr.gamified.studio) is a free QR code generator with 10 types, PNG and SVG export, and no sign-up. No watermarks, no download caps.
+
+I got tired of "free" QR code generators that slap a watermark on your download or ask for your email before you can do anything. So I built one that actually lets you generate a QR code and download it. That's the whole pitch.
+
+---
+
+## How to generate a QR code
+
+It takes about 30 seconds. Here's the process:
+
+1. **Go to [qr.gamified.studio](https://qr.gamified.studio)**. You land on the URL type by default.
+2. **Pick your QR type**. The tabs at the top let you switch between URL, text, vCard, WiFi, email, phone, SMS, event, MeCard, and X profile.
+3. **Fill in the fields**. Each type has its own form. For a URL, you paste a link. For WiFi, you enter the network name and password.
+4. **Customize the look**. Change colors, dot patterns, corner styles, or drop in a logo. The preview updates live so you can see what you're getting. For more on this, I wrote a separate post on [QR code design best practices](/blog/qr-code-design-best-practices).
+5. **Download**. Hit the PNG or SVG button. The file saves directly to your device. No sign-up prompt, no email gate.
+
+That's it. No account creation step, no "free trial expires in 7 days" banner.
+
+---
+
+## Supported types
+
+Everything here works the same way: pick a type, fill in the fields, download your code.
+
+| Type | What it does | Link |
+|------|-------------|------|
+| **URL** | Encode any website link | [/url](/url) |
+| **Text** | Plain text message | [/text](/text) |
+| **vCard** | Digital contact card with name, phone, email, company, address | [/vcard](/vcard) |
+| **WiFi** | Join a network by scanning (SSID, password, encryption) | [/wifi](/wifi) |
+| **Email** | Pre-filled email with recipient, subject, and body | [/email](/email) |
+| **Phone** | Tap-to-call phone number | [/phone](/phone) |
+| **SMS** | Pre-filled text message | [/sms](/sms) |
+| **Event** | Calendar event with title, location, date, and time | [/event](/event) |
+| **MeCard** | Compact contact card (smaller QR, fewer fields than vCard) | [/mecard](/mecard) |
+| **X / Twitter** | Direct link to an X profile | [/x-profile](/x-profile) |
+
+A few of these deserve more detail because the use cases aren't obvious at first glance.
+
+**vCard** is probably the most useful type for professionals. The QR code encodes your full contact card, so someone who scans it gets a prompt to save your name, phone, email, title, and company directly to their phone. I use this on [business cards](/blog/qr-code-business-cards) and in my [email signature](/blog/qr-code-email-signatures). If you need to generate vCards for an entire team, the [bulk vCard tool](/vcard/bulk) takes a CSV and produces codes for every row. More on that in the [bulk generation guide](/blog/bulk-qr-code-generation).
+
+**WiFi** solves a real annoyance. Instead of telling guests your WiFi password and watching them mistype it, you print a QR code. They scan it, their phone connects. I keep one taped near the router.
+
+**Event** is underused. You can encode a calendar event with a title, location, start time, and end time. When someone scans it, they get a prompt to add it to their calendar. This is good for conference talks, workshops, or any event where you're handing out flyers.
+
+---
+
+## What "free" actually means here
+
+I want to be specific because most generators use "free" loosely:
+
+- You can generate as many QR codes as you want. There is no daily cap or monthly limit.
+- Downloads have no watermarks or branding on them.
+- There is no account system. You won't see a sign-up form or a "free trial" timer anywhere.
+- All 10 types and all customization options (colors, dot patterns, corner styles, logo embedding, transparent backgrounds) are available to everyone.
+- Both PNG and SVG export are included for every code.
+
+The tool is at [qr.gamified.studio](https://qr.gamified.studio).
+
+---
+
+## Free vs paid QR code generators
+
+Most paid QR code generators charge for three things: dynamic QR codes, analytics, and bulk generation. Here's my take on each.
+
+**Dynamic QR codes** let you change the destination URL after printing. The QR code points to a redirect server, and you update where it goes from a dashboard. This sounds useful, but it means your QR code depends on someone else's server staying online. If that company shuts down or changes pricing, your printed codes stop working. Static QR codes encode the data directly, so they work forever with no dependencies.
+
+**Analytics** means the QR code routes through a tracking server that counts scans. If you need scan counts, you can get the same data by using a UTM-tagged URL and checking your own analytics tool. You don't need to pay a QR code company for that.
+
+**Bulk generation** is something we handle for free. The [bulk vCard tool](/vcard/bulk) processes CSV files, and the CLI can loop through any list. There's a full walkthrough in the [bulk QR code generation](/blog/bulk-qr-code-generation) post.
+
+The features that actually matter for most people are customization, multiple formats, and clean exports. Those are all free here.
+
+---
+
+## Where to use QR codes
+
+Here are practical places where QR codes solve a real problem, not just look nice.
+
+**Business cards.** A vCard QR code on the back of your card lets people save your contact info without typing it in. This is the single most practical QR code application I've seen. I wrote a [full guide on business card QR codes](/blog/qr-code-business-cards) if you want the details.
+
+**Restaurant menus.** A URL QR code on each table links to a PDF or webpage with your menu. You can update the menu without reprinting anything, as long as the URL stays the same. This became standard during the pandemic and stuck around because it works.
+
+**Event materials.** Conference badges, workshop flyers, meetup posters. An event QR code adds the session directly to someone's calendar. A URL code can link to a schedule or speaker bio page.
+
+**Marketing materials.** Flyers, brochures, product packaging. A QR code bridges the gap between physical and digital. Link to a product page, a video, a landing page, or a review form.
+
+**Email signatures.** A small vCard QR code in your email signature lets recipients save your contact details with one scan. The [email signature guide](/blog/qr-code-email-signatures) covers how to set this up in Gmail, Outlook, and Apple Mail.
+
+---
+
+## Print guidelines
+
+QR codes that look fine on screen sometimes fail when printed. A few rules will save you from wasted prints.
+
+**Minimum size.** Keep your QR code at least 2 cm (about 0.8 inches) on each side. Smaller than that and phone cameras may struggle to focus, especially in low light. If the code encodes a lot of data (vCards with addresses, for example), it will have more modules and need to be larger. For a vCard, I wouldn't go below 3 cm.
+
+**Quiet zone.** The white space around the QR code isn't decoration. Scanners need it to find the edges of the code. Leave at least 4 modules of blank space on each side. The generator handles this automatically in the export, but don't crop it away in your design tool.
+
+**Contrast.** Dark modules on a light background works best. You can use colors, but make sure there's enough contrast. A dark blue on white is fine. A light yellow on white is not. I go into this more in the [design best practices post](/blog/qr-code-design-best-practices).
+
+**File format.** Use SVG for anything that will be printed. It's vector-based, so it stays sharp at any size. PNG works for screens but will look pixelated if you scale it up for a poster. If your print shop asks for a PDF, you can open the SVG in any design tool and export to PDF without losing quality.
+
+**Test before printing.** Scan the code with at least two different phones before sending anything to print. Test it on the actual printed material if you can. A code that works on your monitor might fail on a dark-colored paper stock.
+
+---
+
+## PNG vs SVG
+
+You always get both formats. Which one you pick depends on where the QR code is going.
+
+PNG works well for screens: social media posts, presentations, email signatures, messaging apps. It's a raster image, so it has a fixed resolution.
+
+SVG is what you want for print. Business cards, flyers, posters, packaging. It's vector-based, meaning it stays sharp whether you print it at 1 inch or 10 feet. It also opens cleanly in Figma, Illustrator, and other design tools if you need to drop it into a layout.
+
+If you're unsure, grab both. They're free.
+
+---
+
+## Customization
+
+You can style any QR code before downloading it. The options include foreground and background colors, five dot patterns (square, dots, rounded, classy, extra-rounded), three corner styles, logo embedding in the center, border radius adjustment, and transparent backgrounds.
+
+None of this is gated. You get the same options whether you're making a URL code or a vCard.
+
+For detailed guidance on what combinations actually look good and scan reliably, check the [QR code design best practices](/blog/qr-code-design-best-practices) post.
+
+---
+
+## CLI and MCP
+
+The web app covers most use cases, but there are two other ways to generate codes.
+
+The CLI lets you generate QR codes from the terminal. This is useful when you want to script something or produce a batch without clicking through a form each time.
+
+```bash
+bun run cli --type url --data "https://example.com" -o my-code.png
+```
+
+The MCP server lets AI assistants like Claude generate QR codes through natural language. It's available remotely at `qr.gamified.studio/mcp` or locally via stdio. See the [MCP docs](/docs/mcp) for setup details. I wrote more about this workflow in the [AI QR code generation](/blog/generate-qr-codes-with-ai) post.
+
+Both use the same encoding logic as the web app. You get the same output no matter which way you generate.
+
+---
+
+## Frequently asked questions
+
+### Q: Is this QR code generator really free with no sign-up?
+
+Yes. There is no account system at all. Go to [qr.gamified.studio](https://qr.gamified.studio), pick a type, enter your data, and download.
+
+### Q: Are the QR codes watermarked?
+
+No. The files you download are clean. There's nothing overlaid on them, and you can use them however you want.
+
+### Q: Do the QR codes expire?
+
+No. These are static codes. The data is encoded directly in the image, so they don't depend on any server to keep working.
+
+### Q: Can I generate QR codes in bulk?
+
+Yes. The [bulk vCard tool](/vcard/bulk) accepts CSV files and generates a code for every row. For other types, you can use the CLI to loop through a list. The [bulk generation guide](/blog/bulk-qr-code-generation) walks through both methods.
+
+### Q: What size should a QR code be for printing?
+
+At least 2 cm (0.8 inches) per side for simple codes like URLs. For data-heavy codes like vCards, go with 3 cm or larger. Always use SVG for print to avoid pixelation.
+
+### Q: How is this different from other free QR code generators?
+
+Most "free" generators watermark your output or lock customization behind an account. This one doesn't do either, and it has a CLI and MCP server for automation on top of that. I just wanted a QR code tool that worked without annoying me, so I made one.
+
+### Q: Should I use a static or dynamic QR code?
+
+Static codes encode data directly in the image and work forever with no server dependency. Dynamic codes route through a redirect server, which means they stop working if that server goes offline. For most use cases, static is the better choice. This generator produces static codes.

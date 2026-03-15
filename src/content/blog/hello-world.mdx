@@ -1,167 +1,189 @@
 ---
-title: "The Complete Guide to QR Code Types: URLs, vCards, WiFi, and Beyond"
-description: "Learn how to generate QR codes for every use case — URLs, contact cards, WiFi passwords, calendar events, and more. Free, no sign-up required."
-date: "2026-03-09"
+title: "Hello World: How This QR Code Generator Started"
+description: "How we built a full QR code generator with web app, CLI, and AI integration in one day. What existing tools got wrong and what you'd need to build your own."
+date: "2026-03-15"
 author: "So"
-slug: "hello-world"
-tags: ["QR Codes", "Guide", "Getting Started"]
-readTime: 6
+tags: ["BTS", "Story"]
+readTime: 8
 ---
 
-## What Types of QR Codes Can You Generate?
+**Quick answer:** We needed ten vCard QR codes for a client's email signatures. Every free QR code generator we tried was slow, manual, and hostile to batch work. So we built [our own QR code generator](https://qr.gamified.studio) with a web app, CLI, and MCP server in a single workday.
 
-**Quick answer:** QR Gamified Studio supports 10 QR code types out of the box — URL, vCard, WiFi, Email, Phone, SMS, Calendar Event, MeCard, Plain Text, and X/Twitter Profile. Each encodes data differently so the scanner's device knows exactly what to do.
+## It started with email signatures
 
-Most people think QR codes are just for URLs. They're not. A QR code is a container for structured data, and the format of that data tells the scanning device whether to open a browser, save a contact, join a WiFi network, or compose an email.
+We were setting up [email signatures for Beyond The Analytics](/blog/qr-code-email-signatures), a client with a 10-person team. Each signature needed a vCard QR code with the person's name, role, phone, email, and LinkedIn. Ten people, ten QR codes. Should take fifteen minutes, right?
 
-Here's the full breakdown.
+We pulled up the first QR code generator that ranked on Google. You know the type: a form with 15 fields, a CAPTCHA, a "download" button that opens a new tab, and a free tier that watermarks your output. We got through two signatures before giving up.
+
+The workflow went like this: fill out the form by hand, pick colors, download, rename the file, repeat nine more times. Then realize you used the wrong phone format and start over. There was no API, no CLI, no way to batch anything. So we built our own.
 
 ---
 
-## URL QR Codes
+## What we needed vs what existed
 
-The most common type. Encode any web address and the scanner's browser opens it automatically.
+Before writing any code, I spent about twenty minutes surveying what was out there. The picture was bleak.
 
-```text
-https://qr.gamified.studio
+Most QR code generators are ad-supported web apps that treat each QR code as a separate session. You fill out a form, generate one code, download it, and start from scratch for the next one. Some charge for SVG exports. Some require accounts to remove watermarks. Almost none have an API.
+
+Here's what we actually needed:
+
+- **Batch generation.** Ten vCard QR codes with the same branding, different contact details. Ideally from a script or a spreadsheet.
+- **Consistent styling.** Same colors, same corner radius, same logo placement across every code. Not "pick colors from a palette each time."
+- **Offline capability.** We didn't want to upload employee contact details to a random third-party server.
+- **Programmable access.** A CLI at minimum, an API if possible. We have other projects that will need QR codes.
+
+No free tool I found covered more than one of these. The paid tools covered two or three but locked batch generation behind enterprise pricing. The gap between "what exists" and "what we need" was small enough that building felt faster than shopping.
+
+---
+
+## What we actually made
+
+[QR Gamified Studio](/blog/free-qr-code-generator) generates 10 types of QR codes: URL, vCard, WiFi, Email, Phone, SMS, Calendar Event, MeCard, Plain Text, and X/Twitter Profile. It has a web app for one-off codes, a CLI for scripting, and an MCP server so AI assistants can generate codes through conversation.
+
+The web app is straightforward. You pick a type, fill in the fields, and see a live preview. You can customize colors, corner styles, and apply preset skins. It works fine for generating one or two codes at a time.
+
+The interesting parts are the CLI and the MCP server, because those are what actually solved the BTA problem.
+
+---
+
+## The CLI solved the actual problem
+
+Here's what generating a BTA email signature looks like. One command:
+
+```bash
+bun run cli -f Jane -l Doe \
+  --org "Acme Analytics" \
+  --title "Managing Director" \
+  --phone WORK:+15551234567 \
+  --email WORK:jane@acme-analytics.com \
+  --url https://acme-analytics.com \
+  --skin ocean \
+  -o jane-doe.png
 ```
 
-Best for: marketing materials, product packaging, business cards, restaurant menus.
+One command, one QR code, saved to disk. Wrap ten of those in a shell script and the whole team is done. The CLI has the same options as the web app: custom skins, colors, sizes. You can also dump raw vCard text if you just need the `.vcf` content:
 
-One detail people miss: always include `https://` in your URL. QR scanners handle it better than bare domains, and it ensures the link works on every device.
-
----
-
-## vCard QR Codes
-
-**Quick answer:** vCard QR codes encode a full digital contact card — name, phone, email, company, address, and more. Scanning one adds the contact directly to your phone's address book.
-
-vCards follow the [vCard 3.0 specification](https://datatracker.ietf.org/doc/html/rfc6350) and can include:
-
-- Full name, first/last name
-- Multiple phone numbers (work, mobile, home)
-- Multiple email addresses
-- Company and job title
-- Physical address
-- Website URL
-- Notes
-
-This is the most data-dense QR type. For bulk generation (conferences, teams), use the [bulk vCard tool](/vcard/bulk) to generate hundreds of QR codes from a CSV file.
-
----
-
-## WiFi QR Codes
-
-**Quick answer:** WiFi QR codes let anyone join your network by scanning — no typing passwords. They encode the SSID, password, and encryption type.
-
-The encoded format looks like this:
-
-```text
-WIFI:T:WPA;S:MyNetwork;P:MyPassword;;
+```bash
+bun run cli -f Alex -l Rivera \
+  --org "Acme Analytics" \
+  --title "Data Analyst" \
+  --vcard-only
 ```
 
-| Field | Description | Example |
-|-------|-------------|---------|
-| `T` | Encryption type | `WPA`, `WEP`, `nopass` |
-| `S` | Network name (SSID) | `MyNetwork` |
-| `P` | Password | `MyPassword` |
-| `H` | Hidden network | `true` (optional) |
-
-Perfect for offices, Airbnbs, cafes, and events. Print the QR code once and guests connect instantly without asking for the password.
-
----
-
-## Email QR Codes
-
-Encode a pre-filled email with recipient, subject line, and body text. When scanned, the device's default email client opens with everything filled in.
-
 ```text
-mailto:hello@example.com?subject=Hello&body=I%20found%20your%20QR%20code
+BEGIN:VCARD
+VERSION:3.0
+N:Rivera;Alex;;;
+FN:Alex Rivera
+ORG:Acme Analytics
+TITLE:Data Analyst
+END:VCARD
 ```
 
-Use cases: feedback collection, support requests, event RSVPs. The subject and body are optional but dramatically increase response rates when pre-filled.
+Works entirely offline, no account needed. The shell script we used for BTA was about 40 lines long and produced all ten codes in under a second. When someone's phone number changed a month later, we edited one line and re-ran it. Try doing that with a web form.
 
 ---
 
-## Phone and SMS QR Codes
+## The MCP server, or: let Claude do it
 
-Phone QR codes trigger a direct call:
+MCP (Model Context Protocol) lets AI assistants call external tools directly. Our server exposes 11 tools, one per QR type, that any MCP-compatible client can call. I wrote more about this in the [AI integration post](/blog/generate-qr-codes-with-ai), but the short version is worth telling here too.
 
-```text
-tel:+1234567890
+In practice, you tell Claude something like:
+
+> "Generate a vCard QR code for Maria Lopez, Marketing Manager at Acme Analytics, email maria@acme-analytics.com, use the ocean skin."
+
+Claude calls `generate_vcard_qr` with the right parameters, gets back a PNG, and shows it to you. For the BTA project, we gave Claude the team list and it called the tool ten times. The whole email signature task, the one that made us quit two different QR generators, was done in minutes.
+
+The server runs locally over stdio (for Claude Code) or remotely at `qr.gamified.studio/mcp` for any MCP client. The remote endpoint means you don't need to clone the repo or install anything. Just point your MCP client at the URL.
+
+---
+
+## The tech stack and why each piece matters
+
+I don't mean a 20-hour marathon. I mean a normal workday. QR encoding is simple. Each type is a function that takes structured data and returns a string:
+
+```typescript
+// WiFi QR is just a formatted string
+`WIFI:T:${encryption};S:${ssid};P:${password};;`
+
+// Email QR is a mailto link
+`mailto:${to}?subject=${subject}&body=${body}`
+
+// vCard is a text block
+`BEGIN:VCARD\nVERSION:3.0\nN:${last};${first};;;\n...`
 ```
 
-SMS QR codes open a pre-filled text message:
+You feed that string to a QR library and get an image. All three interfaces share the same encoding functions, just with different I/O around them. That's the key architectural decision: the encoders are pure functions that know nothing about where they run.
 
-```text
-SMSTO:+1234567890:Hey, I scanned your QR code!
-```
+Here's the stack:
 
-Both are useful for customer support lines, emergency contacts, or quick-response marketing campaigns.
+| Layer | What | Why |
+|-------|------|-----|
+| Framework | Next.js 15 with App Router | Web app and API routes in one project. No separate backend. |
+| Styling | Tailwind v4 + shadcn/ui | Pre-built form components saved hours. [Customization is done through skins and CSS variables](/blog/qr-code-design-best-practices). |
+| QR generation | qr-code-styling (web), qrcode (CLI/MCP) | qr-code-styling handles the canvas rendering and visual customization. qrcode is lighter for server-side PNG output. |
+| MCP server | @modelcontextprotocol/sdk | Turns any function into something an AI can call in about 20 lines of wrapper code. |
+| Runtime | Bun | The CLI and MCP stdio server run on Bun. Fast startup, native TypeScript support, no build step. |
+| Hosting | Railway | Deploy on git push. No Dockerfile, no CI config. Railpack detects the framework and builds it. |
 
----
+The part that used to be hard was infrastructure: servers, deployment configs, auth. Next.js handles the web app and API routes together. Railway deploys on git push. The MCP SDK turns any function into something an AI can call. shadcn/ui meant we didn't have to design form components from scratch.
 
-## Calendar Event QR Codes
-
-**Quick answer:** Event QR codes encode iCalendar data — title, location, description, start/end times. Scanning adds the event directly to the user's calendar app.
-
-The format follows the iCalendar (`.ics`) standard:
-
-```text
-BEGIN:VEVENT
-SUMMARY:Team Standup
-LOCATION:Conference Room B
-DTSTART:20260315T090000
-DTEND:20260315T091500
-END:VEVENT
-```
-
-Great for conferences, meetups, classes, and any event where you want attendees to save the date without manual entry.
+You've heard all this before. The difference is what happens when you actually use all of them on the same afternoon. Each tool removes about two hours of work that would have existed five years ago. Stack six of them and you get a day's worth of building that produces something you'd have estimated at two weeks.
 
 ---
 
-## MeCard vs vCard
+## What you'd need to build your own QR code generator
 
-MeCard is a simpler, more compact contact format. It encodes less data than vCard but produces smaller QR codes — which scan faster and work better on printed materials at small sizes.
+If you want to build something similar, here's the honest breakdown.
 
-| Feature | vCard | MeCard |
-|---------|-------|--------|
-| Standard | RFC 6350 | NTT DoCoMo |
-| Data density | High | Medium |
-| QR code size | Larger | Smaller |
-| Photo support | Yes | No |
-| Multiple phones | Yes | No |
-| Best for | Full contacts | Quick sharing |
+**The easy parts:**
 
-Use vCard when you need a complete contact profile. Use MeCard when size matters — small stickers, badges, or business cards where the QR code needs to be compact.
+- QR encoding is a solved problem. Every language has a library for it. In JavaScript, `qrcode` handles the matrix generation and image output. The encoding formats (vCard, WiFi, mailto) are just string templates with specs you can find on Wikipedia.
+- A basic web UI for one QR type takes maybe two hours with a component library. A form, a preview, a download button.
+- Deployment. If you're using any major framework, Railway or Vercel or Netlify will get you live in minutes.
 
----
+**The medium parts:**
 
-## Customization Options
+- Supporting multiple QR types means writing an encoder for each one and building a dynamic form that changes based on the selected type. Our `qr-types.ts` file defines the fields, validation, and encoding for all 10 types. It's about 400 lines. Not complicated, but tedious to get right.
+- Visual customization (colors, corner styles, embedded logos) requires a library that supports it. qr-code-styling is the best I've found for browser-side rendering. On the server side, your options are more limited.
+- The CLI is mostly argument parsing. We use a hand-rolled parser because the dependencies weren't worth it for our flag structure, but you could use `commander` or `yargs` and be done in an hour.
 
-Every QR code type supports the same visual customization:
+**The actually hard part:**
 
-- **Colors**: Foreground, background, and corner colors
-- **Patterns**: Dots, rounded, classy, extra-rounded
-- **Corner styles**: Square, extra-rounded, dot
-- **Logo**: Upload and embed your brand logo
-- **Frame rounding**: Adjust border radius
-- **Transparent background**: For overlaying on designs
+- MCP integration is newer and the documentation is still sparse. The SDK works well, but figuring out the right tool schemas, handling errors gracefully, and testing with different clients took more iteration than everything else combined. If you skip the MCP piece, the whole project is significantly simpler.
 
-All QR codes can be downloaded as PNG or SVG. SVG is recommended for print — it scales to any size without losing quality.
+Total time if you're comfortable with React and Node: one day for the web app and CLI, another half-day if you want MCP. The QR encoding is maybe 10% of the work. The rest is UI, argument parsing, and deployment plumbing.
 
 ---
 
-## Frequently Asked Questions
+## So what?
 
-### Q: What QR code type should I use for business cards?
+QR code generators are not hard to build. But that's kind of the point. Building one that fit our exact workflow took less time than fighting with two off-the-shelf ones. That math didn't used to work out, and now it does, at least for problems at this scale.
 
-vCard is the best choice for business cards. It encodes your full contact info — name, phone, email, company, title, address — and saves directly to the scanner's address book. If your card is small and space is limited, MeCard produces a more compact QR code with the essential fields.
+The tools have gotten good enough that "build vs buy" has a different answer for small, well-scoped utilities than it did a few years ago. Not for everything. I wouldn't build my own database or payment processor. But for a QR code generator that needs to work in a CLI, a web app, and an AI assistant? The custom version took a day and does exactly what we need.
 
-### Q: Do QR codes expire?
+Next time you're 20 minutes into wrestling with a SaaS tool that almost does what you need, maybe check how long the custom version would actually take.
 
-No. The QR codes generated by QR Gamified Studio are static — the data is encoded directly in the image. They never expire, require no account, and work offline. The only way a QR code "breaks" is if the destination URL goes down (for URL-type codes).
+---
 
-### Q: Can I generate QR codes programmatically?
+## Frequently asked questions
 
-Yes. QR Gamified Studio includes an [MCP server](/docs/mcp) that integrates with AI assistants like Claude, plus a CLI tool for batch generation. Both support all 10 QR code types with full customization options.
+### Q: Is the QR code generator actually free?
+
+Yes. No accounts, no watermarks, no limits. It's live at [qr.gamified.studio](https://qr.gamified.studio).
+
+### Q: Can I use the CLI without installing anything?
+
+You need [Bun](https://bun.sh) installed. After cloning the repo, `bun run cli` with your arguments. No global installs, no build step.
+
+### Q: How do I connect the MCP server to Claude?
+
+Add the remote URL (`https://qr.gamified.studio/mcp`) to your MCP client config, or run `bun run mcp` locally for Claude Code. Setup instructions are on the [MCP docs page](/docs/mcp).
+
+### Q: What formats can I export QR codes in?
+
+PNG and SVG from the web app, PNG from the CLI. The MCP server returns base64-encoded PNGs.
+
+### Q: How long would it take to build a basic QR code generator?
+
+A simple single-type web generator with no CLI or MCP takes about two to three hours if you're using React and a QR library. Multi-type with customization is a full day. Adding AI integration through MCP is another half-day.

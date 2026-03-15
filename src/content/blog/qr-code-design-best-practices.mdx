@@ -1,0 +1,169 @@
+---
+title: "QR Code Design: Colors, Logos, and Tips"
+description: "How to customize QR codes with colors, patterns, and logos without breaking scannability. Design rules, common mistakes, and tested color combinations."
+date: "2026-03-10"
+author: "So"
+tags: ["QR Codes", "Design"]
+readTime: 5
+---
+
+## Can you customize a QR code without breaking it?
+
+**Quick answer:** Yes. QR codes have built-in error correction that lets you change colors, add logos, and alter dot patterns. The one thing you can't mess with is contrast: dark dots on a light background, always.
+
+Every QR code you've ever seen probably looked the same. Black squares, white background. It scans fine but nobody notices it. You can do better without sacrificing reliability.
+
+---
+
+## Dark on light, no exceptions
+
+QR scanners detect contrast between dark modules and a light background. Phone cameras and scanning algorithms expect dark-on-light. Flip it around and you'll lose a chunk of your audience, especially anyone scanning in dim lighting or from a few feet away.
+
+So: dark foreground, light background. Always.
+
+The one asterisk here is intentional inversion (white dots on black). QR Gamified Studio has an "Inverted" skin if you want that look, but know that scan reliability takes a hit. You'd need to test on multiple devices before committing to print.
+
+For contrast ratio, aim for at least **3:1**. Ideally **4:1 or higher**. Good rule of thumb: if you'd struggle to read text at that contrast, a scanner will struggle too.
+
+---
+
+## Picking colors
+
+Color actually matters here, beyond just looking nice.
+
+| Color | Vibe | Good fit |
+|-------|------|----------|
+| Black on white | Clean, no-nonsense | Documents, formal settings |
+| Deep blue on light blue | Professional | Corporate, healthcare |
+| Red/coral on cream | Warm, urgent | Marketing, restaurants |
+| Green on dark | Techy | Startups, sustainability |
+| Pink on light pink | Playful | Beauty, events |
+| Dark navy on white | Authoritative | Finance, luxury |
+
+Match the palette to where the code will actually live. A neon green QR code on a law firm's [business card](/blog/qr-code-business-cards)? Weird. Plain black-and-white on a nightclub flyer? Forgettable.
+
+---
+
+## Dot patterns and corner styles
+
+Swapping from square to rounded dots completely changes the feel of a QR code. The [free QR code generator](/blog/free-qr-code-generator) has six dot patterns:
+
+| Pattern | What it looks like | When to use it |
+|---------|-------------------|----------------|
+| Square | Classic grid | Formal, traditional |
+| Rounded | Soft squares | Modern, approachable |
+| Dots | Circles | Playful, lightweight |
+| Classy | Diamond-like | Upscale |
+| Classy Rounded | Smooth diamonds | Premium, polished |
+| Extra Rounded | Pill shapes | Casual, friendly |
+
+For corner squares, you can pick Square, Extra Rounded, or Dot. Corner dots can be Square or Dot.
+
+The three large corner squares are what scanners use to orient themselves. Rounding them softens the whole code. Keeping them sharp gives it structure. Try a few combinations and see what fits.
+
+---
+
+## Pre-built skins
+
+Don't want to fiddle with individual settings? There are 15 tested skins. Each one combines colors, dot style, corner style, and border radius into something that's already been verified to scan well.
+
+| Skin | Foreground | Background | Dot Pattern | Rarity |
+|------|-----------|------------|-------------|--------|
+| Classic | Black `#000000` | White `#ffffff` | Square | Common |
+| Modern | Black `#000000` | White `#ffffff` | Rounded | Common |
+| Dots | Black `#000000` | White `#ffffff` | Dots | Common |
+| Inverted | White `#ffffff` | Black `#000000` | Square | Common |
+| Classy | Dark navy `#1a1a2e` | White `#ffffff` | Classy | Uncommon |
+| Elegant | Charcoal `#2d3436` | White `#ffffff` | Classy Rounded | Uncommon |
+| Bubble | Black `#000000` | White `#ffffff` | Extra Rounded | Uncommon |
+| Midnight | Slate `#e2e8f0` | Dark navy `#0f172a` | Rounded | Rare |
+| Rose | Pink `#e91e63` | Light pink `#fce4ec` | Rounded | Rare |
+| Bronze | Bronze `#cd7f32` | Dark brown `#1a120a` | Classy | Rare |
+| Ocean | Blue `#0077b6` | Light cyan `#caf0f8` | Dots | Epic |
+| Sunset | Coral `#ff6b6b` | Cream `#fff9db` | Classy Rounded | Epic |
+| Silver | Light gray `#e8e8e8` | Near-black `#141418` | Rounded | Epic |
+| Neon | Green `#39ff14` | Near-black `#0d0d0d` | Extra Rounded | Legendary |
+| Gold | Gold `#ffd700` | Dark brown `#1a1207` | Classy Rounded | Legendary |
+
+The Epic and Legendary tiers add gradient effects on the dots. It's a subtle touch that doesn't hurt scannability. If you need to apply a skin across dozens of codes at once, [bulk generation](/blog/bulk-qr-code-generation) supports that too.
+
+---
+
+## Logos
+
+Putting a logo in the center of a QR code is great for branding, but it's also where people most often break things.
+
+The logo physically covers data modules. Error correction compensates for the missing data so the code still scans. QR Gamified Studio bumps error correction from M to Q automatically when you add a logo, giving you 25% damage tolerance.
+
+A few things to get right: keep the logo at **30-35%** of the QR code area (the default is 35%). Use a solid-background or transparent PNG, not a busy logo with thin lines that disappear at small sizes. Leave some margin around it (6px default) so dots don't bleed into the logo edges. And always scan-test on at least two phones before you print anything.
+
+---
+
+## Error correction levels
+
+QR codes have four error correction levels. More correction means more resilience, but also a denser code.
+
+| Level | Recovery | When to use it |
+|-------|----------|----------------|
+| L (Low) | ~7% | Digital-only, controlled environments |
+| M (Medium) | ~15% | General use (this is the default) |
+| Q (Quartile) | ~25% | Codes with logos |
+| H (High) | ~30% | Outdoor use, stickers, anything that might get scratched |
+
+QR Gamified Studio defaults to M and auto-switches to Q when you add a logo. For outdoor signage or product stickers, bump it to H manually.
+
+---
+
+## Size guidelines
+
+Too small and it won't scan. No amount of design will fix a QR code that's 1cm wide on a poster people are viewing from across a room.
+
+| Use case | Minimum size | Recommended |
+|----------|-------------|-------------|
+| Business card | 2 cm (0.8 in) | 2.5 cm (1 in) |
+| Flyer / poster ([restaurant menus](/blog/qr-codes-restaurant-menus), etc.) | 3 cm (1.2 in) | 4 cm (1.6 in) |
+| Billboard | 25 cm (10 in) | Scale to viewing distance |
+| Screen display | 120 px | 200 px |
+| [Email signature](/blog/qr-code-email-signatures) | 80 px | 120 px |
+
+Quick math for billboards: divide the viewing distance by 10. If people are 20 meters away, your code needs to be at least 2 meters wide.
+
+For print, export as SVG. PNG is fine for screens but it'll pixelate when scaled up. Both formats are available in [QR Gamified Studio](https://qr.gamified.studio). If you're printing [WiFi codes](/blog/wifi-qr-code-guide) for a lobby or guest room, SVG is especially worth it since those tend to live on walls for months.
+
+---
+
+## Mistakes that kill scannability
+
+Inverted colors are the big one. Light dots on dark background. Some scanners handle it, many don't. If you go this route, test on every device you can find.
+
+Low contrast is almost as bad. Yellow on white, light gray on white, pastel on pastel. If you can barely see the difference between foreground and background, neither can a camera.
+
+Then there's sizing. A 1cm code on a poster viewed from 3 meters away just won't work. And logos past 35% coverage will push past what error correction can recover from. The code looks nice in the design file and then nobody can scan it.
+
+A subtler problem is data density. A full vCard with address, notes, and five phone numbers creates a packed grid that's harder to read at small sizes. More data needs a bigger code.
+
+The last one is embarrassingly simple: not testing. Scan it on an iPhone and an Android phone before you send anything to the printer. Learning this after a 5,000-flyer print run is expensive.
+
+---
+
+## Frequently asked questions
+
+### Q: What colors work best for QR codes?
+
+Dark on light. Black on white is the safest bet, but dark blue, dark green, and deep red on light backgrounds all work. Aim for a contrast ratio of 4:1 or higher. Avoid yellow, light gray, or pastel foregrounds on white backgrounds.
+
+### Q: Can I make a QR code transparent?
+
+Yes, QR Gamified Studio supports transparent backgrounds. You can layer the code over any design. Just make sure whatever sits behind it provides enough contrast with the dots. Dark dots over a busy photograph won't scan.
+
+### Q: Does adding a logo reduce scan reliability?
+
+It can if the logo is too big. Stay under 35% of the code area and use Q-level error correction (25% recovery). QR Gamified Studio does this automatically when you upload a logo.
+
+### Q: What's the difference between PNG and SVG export?
+
+PNG is raster, fixed pixels. SVG is vector, scales to any size without quality loss. Use PNG for screens, SVG for print. QR Gamified Studio exports both.
+
+### Q: Which skin should I use for professional contexts?
+
+Classic, Classy, or Elegant are the safe picks. They all use dark colors on white with structured dot patterns. If you want a bit more personality without going casual, Ocean and Rose work well in professional settings too.

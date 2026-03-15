@@ -1,0 +1,180 @@
+---
+title: "How to Generate QR Codes in Bulk"
+description: "Generate hundreds of QR codes at once from CSV, text files, or AI tools. Bulk vCard, URL, and WiFi QR codes with no manual entry. Three methods compared."
+date: "2026-03-11"
+author: "So"
+tags: ["QR Codes", "Guide"]
+readTime: 8
+---
+
+## You don't want to make 200 QR codes by hand
+
+**Quick answer:** If you need more than a handful of QR codes, making them one at a time is a waste of your afternoon. Feed structured data (a CSV, a text file, a pasted list) into a bulk generator and get all your codes back in seconds.
+
+The use case that comes up most often is conference badges. You've got 200 attendees and each one needs a unique vCard QR code. Nobody is going to sit there and type in 200 names. Product catalogs and company directories have the same problem.
+
+We built three ways to handle this: a web tool that takes CSV uploads, a CLI you can script with bash, and an MCP server that [lets AI assistants do the work for you](/blog/generate-qr-codes-with-ai).
+
+## Bulk QR code generation from CSV
+
+If your data is already in a spreadsheet, this is the fastest path. The [bulk vCard generator](/vcard/bulk) takes a CSV and spits out a ZIP of QR code images.
+
+1. Prepare a CSV with your contact data. You need at least one of `firstName`, `lastName`, or `org` per row.
+2. Upload it at [qr.gamified.studio/vcard/bulk](/vcard/bulk).
+3. Preview the parsed contacts, pick your QR styling (colors, dot patterns, corner styles).
+4. Download everything as a ZIP.
+
+The CSV supports the full vCard spec:
+
+```csv
+firstName,lastName,org,title,phone,email,url
+Sarah,Chen,Acme Corp,CTO,CELL:+1234567890,WORK:sarah@acme.com,https://acme.com
+James,Park,Acme Corp,Designer,CELL:+1987654321,WORK:james@acme.com,https://acme.com
+```
+
+Multiple phone numbers and emails go in the same cell, separated by pipes (`|`):
+
+```csv
+firstName,lastName,phone,email
+Ali,Hassan,CELL:+15551234567|WORK:+15559876543,WORK:ali@example.com|HOME:ali.hassan@example.com
+```
+
+The limit is 500 contacts per batch. Files are auto-named after the contact (`Sarah_Chen_qr.png`), so you can match them to badges or directories without renaming anything.
+
+This is the path of least resistance for conference badges, [team directories and business cards](/blog/qr-code-business-cards), and onboarding packets.
+
+## CLI scripting with bash
+
+The CLI gives you full control. It runs locally with [Bun](https://bun.sh) and generates one QR code per call, so you wrap it in whatever loop you want and pipe data from wherever.
+
+A single vCard:
+
+```bash
+bun run cli -f "Sarah" -l "Chen" \
+  --org "Acme Corp" --title "CTO" \
+  --phone CELL:+1234567890 \
+  --email WORK:sarah@acme.com \
+  --skin ocean \
+  -o sarah-chen.png
+```
+
+### Batch from a text file
+
+Put your data in a tab-separated file and loop through it:
+
+```bash
+# team.tsv
+# FirstName  LastName  Title  Phone  Email
+# Sarah      Chen      CTO    +1234567890  sarah@acme.com
+# James      Park      Designer  +1987654321  james@acme.com
+
+while IFS=$'\t' read -r first last title phone email; do
+  bun run cli -f "$first" -l "$last" \
+    --org "Acme Corp" --title "$title" \
+    --phone "CELL:$phone" \
+    --email "WORK:$email" \
+    --skin modern \
+    -o "${first}_${last}_qr.png"
+done < team.tsv
+```
+
+### URL QR codes
+
+The CLI is built for vCards specifically. For URL-type batch jobs, you'd pipe a list through a separate QR library.
+
+### CLI flags
+
+| Flag | Description |
+|------|-------------|
+| `-f`, `--first-name` | First name |
+| `-l`, `--last-name` | Last name |
+| `--org` | Company / organization |
+| `--title` | Job title |
+| `--phone` | Phone with type prefix (e.g. `CELL:+123...`) |
+| `--email` | Email with type prefix (e.g. `WORK:a@b.com`) |
+| `--skin` | Color preset (`classic`, `ocean`, `sunset`, `neon`, etc.) |
+| `-o`, `--output` | Output file path |
+| `--vcard-only` | Print raw vCard text, no image |
+
+Run `bun run cli --help` for the full list.
+
+If you're already running CI/CD or have an existing data pipeline, this slots right in.
+
+## MCP server with AI assistants
+
+The [MCP server](/docs/mcp) lets AI assistants like Claude generate QR codes from natural language. You describe what you need, the AI figures out the right tool calls.
+
+The bulk use case is straightforward. Paste a list of 15 team members into Claude and say "generate vCard QR codes for all of these with the midnight skin." It calls `generate_vcard_qr` once per person and you get 15 images back without writing a loop or filling out a form.
+
+You can connect two ways:
+
+- Remote: point any MCP client to `https://qr.gamified.studio/mcp`
+- Local: run `bun run mcp` for stdio transport with Claude Code
+
+It supports all 10 QR code types, not just vCards. You could generate 50 WiFi codes for different office locations the same way.
+
+Full setup instructions: [MCP docs](/docs/mcp).
+
+Worth trying if your data is messy or you don't want to deal with a terminal. The AI can usually make sense of a sloppy pasted list that would break a CSV parser.
+
+## Picking the right method
+
+| Scenario | Method |
+|----------|--------|
+| Data already in a spreadsheet | Web bulk tool (CSV upload) |
+| Need automation or CI integration | CLI with bash |
+| Unstructured data or one-off batch | MCP server with AI |
+| Someone who doesn't use a terminal | Web bulk tool or MCP |
+| Mixed QR types in one batch | CLI or MCP |
+
+You can mix and match. Use the MCP server to wrangle messy data into a clean CSV, then run that CSV through the web tool for visual customization.
+
+## Common bulk generation use cases
+
+I've seen these come up repeatedly, and each one has its own quirks worth knowing about.
+
+**Event badges and lanyards.** This is the most common reason people look for bulk QR generation. You export your attendee list from Eventbrite or a Google Sheet, run it through the CSV tool, and print the codes onto badge inserts. The key detail most people miss: keep the vCard data minimal. Name, company, email, and one phone number. Adding a full address and five social links makes the QR code so dense that badge scanners struggle with it, especially on lanyards that swing around.
+
+**Product catalogs and inventory.** Retail and warehouse teams use bulk QR codes for asset tagging. Each code links to a product page, a spec sheet, or an internal inventory record. For these, you're usually generating URL-type QR codes rather than vCards. The CLI handles this well since you can pipe a list of URLs from a database export. I recommend SVG output here because labels get printed at various sizes and you don't want pixelation on a tiny shelf tag.
+
+**Company directories.** HR teams love this one. Generate a vCard QR code for every employee, print them on desk nameplates or include them in the internal wiki. When someone new joins, you add a row to the CSV and regenerate. The auto-naming feature (`FirstName_LastName_qr.png`) saves a surprising amount of time when you're matching files to a directory layout.
+
+**Classroom and training materials.** Teachers and corporate trainers generate QR codes that link to worksheets, videos, or feedback forms. A teacher I talked to generates 30 codes per unit, one per worksheet, and prints them in the margins of a paper handout. Students scan to get the interactive version. For this use case, the MCP method actually works well because the data is often scattered across different Google Docs and the AI can pull it together without you formatting a CSV first.
+
+## Getting good results
+
+Test a sample before you run the full batch. Generate two or three codes and scan them with different phones. It's much easier to catch a formatting mistake on row 3 than on row 300.
+
+If the QR codes are going on printed materials (badges, labels, posters), export as SVG. Raster images pixelate when you scale them up; SVGs don't.
+
+Keep your data concise. More data means a denser QR code, and dense codes are harder to scan at small sizes. If you're generating vCards, leave out optional fields you don't actually need.
+
+Pick one color scheme for the whole batch. Mixing styles across a set of badges or a directory page looks messy. If you need guidance on contrast ratios and color choices, the [QR code design best practices](/blog/qr-code-design-best-practices) post covers what works and what doesn't.
+
+The CLI and bulk tool both auto-name files based on the contact name. If you need a custom naming convention, use the CLI with explicit `-o` paths.
+
+Watch your encoding. If your CSV has names with accents, Arabic script, or CJK characters, make sure the file is saved as UTF-8. Excel sometimes defaults to a locale-specific encoding that mangles non-ASCII characters. Google Sheets exports clean UTF-8 by default, so that's the safer source if you're dealing with international names.
+
+One thing I learned the hard way: always spot-check the last few rows of your CSV. Spreadsheet exports sometimes trail empty rows or rows with stale data. Generating 500 QR codes and finding that the last 12 are blank contacts is annoying to debug after the fact.
+
+## Frequently asked questions
+
+### Q: How many QR codes can I generate at once?
+
+The web bulk tool at [qr.gamified.studio/vcard/bulk](/vcard/bulk) handles up to 500 contacts per CSV upload. The CLI has no built-in limit; generate as many as your script produces. The MCP server handles requests one at a time, so batch size depends on your AI client.
+
+### Q: What file format does the bulk tool accept?
+
+CSV. Export from Excel, Google Sheets, Numbers, or whatever spreadsheet app you use. The first row needs column headers matching the field names (`firstName`, `lastName`, `org`, `title`, `phone`, `email`, etc.).
+
+### Q: Can I customize how the QR codes look?
+
+Yes. The web bulk tool and the CLI both support color skins, dot patterns, corner styles, and custom colors. In the bulk tool you set the style once and it applies to every code. With the CLI, pass `--skin` or `--dark-color`/`--light-color` per command.
+
+### Q: Do I need to install anything?
+
+Not for the web tool. It runs in your browser at [qr.gamified.studio/vcard/bulk](/vcard/bulk). The CLI needs [Bun](https://bun.sh) and the cloned repo. The MCP server needs an MCP-compatible client like Claude.
+
+### Q: Can I bulk-generate QR codes for types other than vCards?
+
+The web bulk tool only does vCards. For other types (URL, WiFi, Email, etc.), use the CLI with bash scripting or the MCP server. The MCP server supports all 10 QR code types.

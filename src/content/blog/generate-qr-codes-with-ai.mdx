@@ -1,0 +1,158 @@
+---
+title: "Generate QR Codes with AI Assistants"
+description: "Generate QR codes by asking an AI assistant in plain English. URLs, vCards, WiFi, events, and more. No forms needed — describe what you want and get a PNG."
+date: "2026-03-11"
+author: "So"
+tags: ["QR Codes", "AI"]
+readTime: 7
+---
+
+## Skip the form, talk to your AI
+
+**Quick answer:** You can generate QR codes by asking an AI assistant like Claude in plain English. This works through MCP (Model Context Protocol), which lets AI assistants call external tools, including our QR generator at [qr.gamified.studio](https://qr.gamified.studio).
+
+QR code generators all work the same way. You open a website, fill out a form, pick your colors, download the image. Need ten codes? Do that ten times. Mistype the WiFi password? Start over. It is fine for one-offs, genuinely tedious for anything more.
+
+With MCP, you skip the form entirely. You tell an AI assistant what you need, it calls the right tool, and you get a QR code back. That is what our MCP server does.
+
+---
+
+## What MCP actually is
+
+MCP (Model Context Protocol) is a standard that lets AI assistants call external tools. Instead of just generating text, an assistant with MCP access can hit APIs, run scripts, and generate files on your behalf.
+
+Point an AI assistant at our MCP server and it can create any QR code type we support. You describe what you want in plain language, the assistant maps that to the right tool and parameters, and you get the result back. No form fields involved.
+
+Most QR generators are purely web forms with no programmatic access. We built ours with MCP support alongside the [web app](/blog/free-qr-code-generator) and CLI, so everything shares the same encoding logic underneath.
+
+---
+
+## Getting started with AI QR code generation
+
+Here is how to go from zero to generating your first QR code with an AI assistant. I will use Claude as the example, but any MCP-compatible client works the same way.
+
+**1. Pick a client.** If you already use Claude Desktop or Claude Code, you have MCP support built in. Other clients that implement the protocol will work too.
+
+**2. Add the MCP server.** Point your client at the remote endpoint:
+
+```
+https://qr.gamified.studio/mcp
+```
+
+No API key, no account, no authentication. You add the URL to your client's MCP configuration and that is it. Full setup details are on the [MCP documentation page](/docs/mcp).
+
+**3. Ask for a QR code.** Type something like "Generate a QR code for https://example.com" in your conversation. The assistant recognizes the intent, picks the right tool, fills in the parameters, and returns a PNG image.
+
+**4. Iterate if needed.** If you want a different color scheme or realize you mistyped something, just say so. The assistant generates a new code in the same conversation. No re-filling forms, no starting over.
+
+That is the whole flow. Once the server is connected, you just talk to it.
+
+---
+
+## Available tools
+
+The MCP server exposes 11 tools:
+
+| Tool | What it does |
+|------|-------------|
+| `generate_url_qr` | QR code linking to any URL |
+| `generate_text_qr` | Plain text encoded in a QR code |
+| `generate_wifi_qr` | WiFi credentials (scan to connect) |
+| `generate_email_qr` | Pre-filled email with recipient, subject, and body |
+| `generate_phone_qr` | Phone number (scan to dial) |
+| `generate_sms_qr` | Pre-filled text message |
+| `generate_event_qr` | Calendar event with date, time, location |
+| `generate_vcard_qr` | Full contact card with name, org, phones, emails, addresses |
+| `generate_vcard_text` | Raw vCard text for .vcf files (no image) |
+| `generate_mecard_qr` | Compact contact card (produces a smaller QR code) |
+| `generate_xprofile_qr` | Link to an X/Twitter profile |
+
+All image tools support styling: 8 built-in color skins (classy, elegant, midnight, ocean, sunset, neon, rose, inverted) or custom hex colors. If you care about visual consistency, our [QR code design guide](/blog/qr-code-design-best-practices) covers what works and what does not.
+
+---
+
+## Example prompts and what you get back
+
+You do not need to memorize tool names. Just say what you want.
+
+> "Generate a WiFi QR code for my cafe. Network name is BlueMug-Guest, password is welcome2026, WPA encryption. Use the ocean skin."
+
+This calls `generate_wifi_qr` with the credentials and skin you specified. You get back a styled PNG that anyone can scan to join the network automatically.
+
+> "Create a vCard QR code for Dana Karim, Lead Designer at Acme Corp, email dana@acme.com, phone +1-555-0199, website acme.com."
+
+The assistant calls `generate_vcard_qr` and returns a contact card QR code. When scanned, it opens the phone's contact app with all the fields pre-filled.
+
+> "Generate vCard QR codes for these three people at Acme Corp: John Smith (CEO, john@acme.com), Sarah Lee (CTO, sarah@acme.com), and Mike Chen (CFO, mike@acme.com). Use the midnight skin for all."
+
+Three separate tool calls, three PNGs back. If you need to do this for a larger list, take a look at our [bulk QR code generation](/blog/bulk-qr-code-generation) guide, which covers handling dozens or hundreds of contacts.
+
+> "Make a QR code for our team meetup on 2026-04-10 from 14:00 to 16:00 at Tripoli Coworking Hub. Title it Spring Planning Session."
+
+Calls `generate_event_qr` with the date, time, location, and title. The resulting QR code adds the event directly to any calendar app.
+
+> "Generate a QR code for https://qr.gamified.studio with the neon color scheme."
+
+The simplest case. Calls `generate_url_qr` with a URL and a skin name.
+
+---
+
+## AI vs web form vs CLI: when to use each
+
+We have three interfaces to the same QR generator, and each one fits a different workflow.
+
+**Web form** at [qr.gamified.studio](https://qr.gamified.studio) is the fastest option when you need one QR code and you know exactly what fields to fill in. You see a live preview as you type. If you have never generated a QR code before, the [free QR code generator guide](/blog/free-qr-code-generator) walks through how it works.
+
+**CLI** is good when you are scripting or automating. You can pipe output into other commands, loop over a list of URLs, or integrate QR generation into a build step. It runs locally with no network dependency after install.
+
+**AI via MCP** is the best fit when you are dealing with variety, volume, or when the input is messy. Paste a spreadsheet of contacts. Describe an event in plain text instead of filling in separate date, time, and location fields. Generate five different QR types in one conversation. The AI handles the mapping from natural language to structured parameters, which is the tedious part.
+
+I reach for the web form when I need a quick one-off with a specific skin. I use the AI when I have a batch of contacts to process or when I am mid-conversation in Claude and do not want to switch contexts.
+
+---
+
+## Where this actually saves time
+
+For a single QR code, just use the web form. Where MCP pays off is volume and variety.
+
+Say you have a spreadsheet of 15 new hires who each need a vCard QR code for their email signature. Paste the list into Claude and ask it to generate all 15. What takes 30 minutes of copy-pasting into form fields takes about a minute. Each tool call runs independently, so you get 15 PNGs back in one conversation. If you are setting up email signatures specifically, we have a [dedicated guide for that](/blog/qr-code-email-signatures).
+
+Or you are organizing a conference and need QR codes for the WiFi network, the event schedule, the registration page, and contact cards for every speaker. That is four different QR types. In a web form, that means four different forms. With MCP, it is one message.
+
+The local server is also useful if you are already working in a terminal. If you are using Claude Code, you can generate QR codes mid-workflow without switching to a browser.
+
+---
+
+## How the pieces fit together
+
+The web app, CLI, and MCP server share the same encoding logic. There is no watered-down "AI version" with fewer options. Whatever you can do in the web interface, you can do through natural language.
+
+If you want to try it, the web app is at [qr.gamified.studio](https://qr.gamified.studio). To connect your AI assistant directly, point it at the MCP endpoint and start asking.
+
+---
+
+## Frequently asked questions
+
+### Q: Which AI assistants support MCP?
+
+Any assistant that implements the Model Context Protocol. Claude has native MCP support in Claude Code and the Claude desktop app. Other MCP-compatible clients can connect to the remote endpoint at `https://qr.gamified.studio/mcp`.
+
+### Q: Do I need an API key or account?
+
+No. The server is open with no authentication and no rate limits.
+
+### Q: What format are the generated QR codes?
+
+PNG, returned as base64-encoded data. Your assistant can display them inline, save them to disk, or hand them off to other tools. The `generate_vcard_text` tool is the exception: it returns raw vCard text, not an image.
+
+### Q: Can I customize the colors?
+
+Yes. Every image tool accepts a `skin` parameter with 8 presets, or you can pass custom `darkColor` and `lightColor` hex values. Just tell the assistant what colors you want.
+
+### Q: Is this the same as the web app?
+
+Yes. Same encoding logic and same styling options. The only difference is the interface: natural language instead of form fields.
+
+### Q: Where can I find setup instructions?
+
+The [MCP documentation page](/docs/mcp) covers both remote and local setup.

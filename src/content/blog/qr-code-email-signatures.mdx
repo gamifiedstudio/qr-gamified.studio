@@ -1,0 +1,196 @@
+---
+title: "How to Add a QR Code to Your Email Signature"
+description: "Add a vCard QR code to your email signature so recipients can save your contact info with one scan. Step-by-step setup for Gmail, Outlook, and Apple Mail."
+date: "2026-03-13"
+author: "So"
+tags: ["QR Codes", "Guide"]
+readTime: 7
+---
+
+## Why bother?
+
+**Quick answer:** A vCard QR code in your email signature lets anyone save your contact details with one scan instead of typing them in manually.
+
+You already put your name, title, and phone number in your email signature. But be honest: how often do you actually save someone's contact info by hand-copying it from an email? Almost never. It's tedious and people just don't do it.
+
+A QR code skips that entirely. Scan it, and the contact card drops straight into the phone's address book. On desktop, the recipient points their phone camera at the screen. On mobile, they tap to open it.
+
+Where this pays off: after a networking email, the other person already has your number saved. New clients don't have to ask "can you text me your contact?" a week later. If you manage a team, you can give everyone a consistent signature with a scannable contact card built in.
+
+---
+
+## Generate your vCard QR code
+
+Head over to the [free QR code generator](/blog/free-qr-code-generator) and go to the [vCard tab](/vcard). Fill in your details: name, job title, company, phone numbers, email, website, address. The QR code updates in real time as you type.
+
+### Customize it for email
+
+Email signatures are small, so the QR code needs to be too.
+
+Aim for 100-150px wide. Use a simple dot pattern because ornate ones blur at this size. Keep the contrast high (dark dots, light background) and match your brand colors. For more on what works and what doesn't, the [QR code design guide](/blog/qr-code-design-best-practices) covers color combinations and pattern choices in detail. Skip the logo. Logos inside QR codes look cool on a poster, but at 100px they just tank the scan rate.
+
+Download as **PNG**. Email clients are bad at rendering SVG, so save SVG for print.
+
+---
+
+## Gmail
+
+Gmail won't let you insert images from your computer into signatures directly. You need the image hosted somewhere first.
+
+### Desktop (web)
+
+1. Upload your QR code PNG to Google Drive, Imgur, or any image host
+2. If using Google Drive: right-click the file, select "Share," set to "Anyone with the link"
+3. Open Gmail **Settings** (gear icon) > **See all settings** > **General** tab
+4. Scroll to **Signature** and select your signature (or create one)
+5. Click the **Insert Image** icon in the signature editor toolbar
+6. Choose **Web Address (URL)** and paste your hosted image URL
+7. Resize the image to about 100-150px wide
+8. Click **Save Changes** at the bottom
+
+A common stumbling point: if you paste a Google Drive share link as-is, Gmail sometimes shows a broken image. You need the direct image URL. For Google Drive, take the file ID from the share link and use the format `https://drive.google.com/uc?id=YOUR_FILE_ID`. That gives Gmail a URL it can actually render.
+
+### Mobile (Gmail app)
+
+The Gmail mobile app does not have a signature image editor. You can set a text-only mobile signature under **Settings** > **[your account]** > **Mobile Signature**, but there is no way to insert an image. Signatures you create on the desktop version will show up when you send from the web, but the Gmail app substitutes its own plain-text version on mobile-sent emails.
+
+If this matters to you, the workaround is to use a mail client that supports rich signatures on mobile (like Outlook) or to send from the Gmail web interface on your phone's browser instead of the app.
+
+Send yourself a test email and scan the QR code from your phone. Make sure all the contact fields come through correctly.
+
+---
+
+## Outlook
+
+Outlook handles signature images more directly than Gmail, and the experience is fairly consistent across desktop and web.
+
+**Desktop (Windows):**
+
+1. Go to **File** > **Options** > **Mail** > **Signatures**
+2. Select your signature or create a new one
+3. Place your cursor where you want the QR code
+4. Click **Insert Image** and select your PNG file
+5. Right-click the inserted image and resize to 100-150px
+6. Click **OK** to save
+
+**Desktop (Mac):**
+
+1. Go to **Outlook** > **Settings** > **Signatures**
+2. Select or create a signature
+3. You can drag and drop the PNG into the editor, or use the image icon in the toolbar
+4. Resize to 100-150px and save
+
+One thing I've run into on the Mac version: Outlook sometimes strips image dimensions when syncing signatures across devices. If your QR code shows up huge on another machine, re-check the signature in settings on that device. It usually just needs the width set again.
+
+**Web (Outlook.com / Microsoft 365):**
+
+1. Click **Settings** (gear icon) > **View all Outlook settings**
+2. Go to **Mail** > **Compose and reply**
+3. In the signature editor, click the image icon
+4. Upload your QR code PNG or paste a hosted URL
+5. Resize and save
+
+**Outlook mobile app:**
+
+Unlike Gmail, the Outlook mobile app does support rich HTML signatures. It pulls the signature from your Outlook account settings, so if you set it up on desktop or web, it carries over. I'd still recommend sending a test from your phone to confirm the image renders and scans properly at the smaller mobile screen size.
+
+---
+
+## Apple Mail
+
+Apple Mail is the easiest of the three.
+
+1. Open **Mail** > **Settings** > **Signatures**
+2. Create or select a signature
+3. Drag and drop your QR code PNG into the signature editor
+4. It embeds inline, no URL hosting needed
+5. To resize, you may need to edit the signature HTML directly: go to `~/Library/Mail/V10/MailData/Signatures/`, find your `.mailsignature` file, and set the `width` attribute on the `<img>` tag to `100` or `150`
+
+A note about that HTML method: macOS can overwrite your edits when you reopen Mail. To prevent this, after saving your changes, lock the file by selecting it in Finder, pressing **Cmd+I**, and checking the **Locked** checkbox. Mail will still use the signature but won't overwrite your manual edits.
+
+On **iOS**, Apple Mail uses whatever signature you've set on that device under **Settings** > **Mail** > **Signature**. The iOS editor only supports plain text, so you can't add an image through the UI. You can paste HTML with an embedded image into the field on some versions, but it's inconsistent. If you need a QR code in your mobile Apple Mail signature, it's more reliable to set it up on your Mac and let iCloud sync it across.
+
+---
+
+## Generating codes for a whole team
+
+Doing this one person at a time gets old fast. The [bulk vCard tool](/vcard/bulk) handles it.
+
+1. Prepare a CSV with columns for first name, last name, email, phone, title, company
+2. Go to [qr.gamified.studio/vcard/bulk](/vcard/bulk)
+3. Upload the CSV
+4. Pick your style settings (applied to all codes)
+5. Download everything at once
+
+You can also script it with the CLI:
+
+```bash
+bun run cli -f "Jane" -l "Smith" \
+  --org "Acme Corp" \
+  --title "Head of Sales" \
+  --phone WORK:+12025551234 \
+  --email WORK:jane@acme.com \
+  --url https://acme.com \
+  --skin ocean \
+  -o jane-smith.png
+```
+
+Put that in a loop and you can generate 50 team signatures in under a minute without opening a browser.
+
+The [MCP server](/docs/mcp) works too. Connect it to Claude or another MCP-compatible assistant and just ask for what you need in plain language.
+
+---
+
+## Things to check before sending
+
+Before you roll out a QR code signature to your team (or even just yourself), run through this list:
+
+- [ ] **Scan from an iPhone and an Android phone.** QR readers handle vCards slightly differently. Test both.
+- [ ] **Check every contact field.** Open the scanned contact and verify name, phone, email, title, and company all came through. I've seen codes silently drop the phone number because of a formatting issue.
+- [ ] **Send from each platform you use.** If you send from both Gmail and Outlook, test the signature on each. They handle image embedding differently.
+- [ ] **Test on mobile.** Open the email on your phone and try scanning the QR code from a second phone. Some email apps resize images aggressively.
+- [ ] **Try printing the email.** Print a copy and scan the QR code from paper. Low-contrast colors that look fine on screen can wash out on a cheap office printer.
+- [ ] **Verify the image URL is stable.** If you hosted the image on Google Drive or Imgur, make sure the sharing permissions are right and the URL won't expire or change.
+- [ ] **Check file size.** A QR code PNG at 100-150px should be under 10KB. If it's larger, your email might hit size limits when sending to mailing lists.
+
+---
+
+## Design and sizing tips
+
+The most common mistake is making the QR code too big. At 200px it dominates the signature and looks odd. Stick to 100-150px.
+
+The second most common mistake is low contrast. Your QR code might scan fine on your 4K monitor, but when someone prints that email on a cheap office printer and tries to scan the printout, low-contrast colors fall apart. Dark dots on a light background, always. The [design best practices post](/blog/qr-code-design-best-practices) has tested color combinations if you want to go beyond black and white.
+
+Keep the data lean. More fields means a denser code, and dense codes are harder to scan at small sizes. Name, phone, email, title, company. Unless your mailing address matters to the recipient, leave it out.
+
+One thing to remember: these are static codes. The contact data is baked into the image. If your phone number changes, you need a new QR code. Bookmark [qr.gamified.studio/vcard](/vcard) so regenerating takes thirty seconds instead of a scavenger hunt.
+
+If you also use QR codes on printed cards, the same vCard works in both places. The [business card QR guide](/blog/qr-code-business-cards) covers print-specific sizing and placement, but the QR code itself is identical.
+
+---
+
+## Frequently asked questions
+
+### Q: What size should my email signature QR code be?
+
+100-150 pixels wide. Below 80px, scans start failing, especially with vCard codes that pack in a lot of data. Above 150px it starts competing with the rest of your signature for attention.
+
+### Q: Will it still work if someone prints the email?
+
+Yes. A PNG at 100-150px has enough resolution for both on-screen and basic print scanning. Just make sure you're using high-contrast colors.
+
+### Q: Can I use the same QR code on my business card?
+
+The QR code is just a vCard encoded as an image. It doesn't know or care whether it's in an email or printed on cardstock. Generate it once at [qr.gamified.studio/vcard](/vcard) and put it wherever you want.
+
+### Q: How do I generate QR codes for my whole team at once?
+
+The [bulk vCard tool](/vcard/bulk) lets you upload a CSV and download all the codes in one batch. For scripted automation, use the CLI (`bun run cli`) or the [MCP server](/docs/mcp).
+
+### Q: Does the QR code expire?
+
+No. The contact data is encoded directly in the image. There's no server involved and no account needed. The only reason you'd ever need to regenerate one is if your actual contact info changes.
+
+### Q: What if my email client strips the image?
+
+Some corporate email gateways strip inline images or block external image URLs for security reasons. If your recipients use a system like this, the QR code won't render on their end. There is no reliable workaround for this on the sender side. You could include a plain vCard file as an attachment alongside the QR code as a fallback.

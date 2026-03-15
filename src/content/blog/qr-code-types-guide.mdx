@@ -1,0 +1,221 @@
+---
+title: "QR Code Types: A Practical Guide to All 10"
+description: "Learn how each of the 10 QR code types works, from URLs and vCards to WiFi and calendar events. Includes use cases, formatting tips, and gotchas for every type."
+date: "2026-03-09"
+author: "So"
+slug: "qr-code-types-guide"
+tags: ["QR Codes", "Guide", "Getting Started"]
+readTime: 8
+---
+
+## What QR code types can you actually generate?
+
+**Quick answer:** There are 10 QR code types: URL, vCard, WiFi, Email, Phone, SMS, Calendar Event, MeCard, Plain Text, and X/Twitter Profile. Each encodes data in a format that tells the scanner what to do, whether that's opening a link, saving a contact, or joining a network.
+
+Most people only associate QR codes with URLs. That's fair. URLs are the most common use. But a QR code is really just a container for structured data. The format tells the phone whether to open a browser, save a contact, join a WiFi network, or draft an email. The code itself doesn't care what's inside.
+
+I've spent a lot of time working with all 10 types while building this generator, and some of them are genuinely underused. Here's what each type does, when to reach for it, and what to watch out for.
+
+---
+
+## URL
+
+The bread and butter. You put in a web address, the scanner opens it.
+
+```text
+https://qr.gamified.studio
+```
+
+You'll see these on packaging, menus, flyers, business cards. One thing worth knowing: always include `https://` in the URL. Some scanners choke on bare domains, and the protocol prefix costs you almost nothing in QR density.
+
+**Use case:** Restaurant menus are probably the single biggest use for URL QR codes right now. A printed menu links to a PDF or a web page that the owner can update without reprinting anything.
+
+**Gotcha:** If you're linking to a page that might move or get deleted, you'll have a dead QR code with no way to fix it. These are static codes. The URL is baked into the image. I'd recommend pointing to a URL you control and can redirect later if needed, rather than a third-party page.
+
+---
+
+## vCard
+
+A vCard QR code packs a full contact card into the image: name, phone numbers, email, company, address, the works. When someone scans it, the contact gets added to their phone's address book directly.
+
+The format follows the [vCard 3.0 spec](https://datatracker.ietf.org/doc/html/rfc6350) and supports:
+
+- Full name, first/last name
+- Multiple phone numbers (work, mobile, home)
+- Multiple email addresses
+- Company and job title
+- Physical address
+- Website URL
+- Notes
+
+This is the densest QR type. All that data means a complex code with lots of modules. If you're putting it on a business card, make sure the print is large enough for scanners to read reliably. I'd say 2.5 cm minimum, though 3 cm is safer.
+
+For more on how vCard QR codes work on business cards specifically, see our [guide to QR codes on business cards](/blog/qr-code-business-cards).
+
+**Use case:** Conference badges. Instead of exchanging paper cards that end up in a drawer, attendees scan each other's badges and the contact goes straight into their phone. If you need to generate a batch for a whole team, the [bulk vCard tool](/vcard/bulk) takes a CSV and spits out hundreds of codes at once.
+
+**Gotcha:** vCard codes get big fast. If you fill every field, the QR code becomes dense enough that cheap cameras struggle with it. Only include the fields people actually need. A phone number, email, and name are usually enough.
+
+---
+
+## WiFi
+
+WiFi QR codes let people join your network by pointing their camera at a sticker. No dictating the password, no "is that a zero or an O."
+
+Under the hood, they encode the SSID, password, and encryption type:
+
+```text
+WIFI:T:WPA;S:MyNetwork;P:MyPassword;;
+```
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `T` | Encryption type | `WPA`, `WEP`, `nopass` |
+| `S` | Network name (SSID) | `MyNetwork` |
+| `P` | Password | `MyPassword` |
+| `H` | Hidden network | `true` (optional) |
+
+Print one for your office, stick it on the Airbnb fridge, tape it behind the counter at a cafe. Guests stop asking you to repeat the password.
+
+**Use case:** Airbnb hosts love these. Print it on a card near the router and every guest connects in seconds. No more "what's the WiFi password" texts at midnight.
+
+**Gotcha:** The password is stored in the QR code in plain text. Anyone with a QR reader app (not just a camera) can extract it. That's fine for a guest network, but don't use this for a network that has sensitive devices on it. We go deeper on this in our [WiFi QR code guide](/blog/wifi-qr-code-guide).
+
+---
+
+## Email
+
+These pre-fill an email with the recipient, subject, and body text. The scanner opens the default mail app with everything already typed.
+
+```text
+mailto:hello@example.com?subject=Hello&body=I%20found%20your%20QR%20code
+```
+
+The subject and body are optional, but pre-filling them removes the friction that kills most responses. Someone scans the code, sees the email already written, and just hits send.
+
+**Use case:** Feedback forms on receipts. Print a QR code that opens a pre-filled email like "Re: My visit on [date]" and people are far more likely to actually send feedback than if they have to navigate to a website and fill out a form.
+
+**Gotcha:** The body text gets URL-encoded, which eats into your QR code density quickly. Keep the pre-filled body short, maybe one sentence. Long bodies make the code harder to scan.
+
+---
+
+## Phone
+
+Phone codes trigger a call:
+
+```text
+tel:+1234567890
+```
+
+Simple. The phone opens the dialer with the number pre-filled. On most devices the user still has to tap "call" rather than it dialing automatically, which is a good thing.
+
+**Use case:** Emergency contact stickers. Put one on a piece of equipment or in a building lobby that dials the building manager or maintenance line. Anyone with a phone can call without looking up the number.
+
+**Gotcha:** Always use the international format with the country code (`+1`, `+44`, etc.). A number like `555-1234` might work locally but will fail for anyone scanning from a phone with a different country code set.
+
+---
+
+## SMS
+
+SMS codes open a pre-written text message:
+
+```text
+SMSTO:+1234567890:Hey, I scanned your QR code!
+```
+
+Like email codes, the message body is optional but helpful. Pre-filling it means the user just taps send.
+
+**Use case:** Event RSVPs. Print a QR code on an invitation that opens a text message saying "Yes, I'll be there." The host gets a text instead of having to check a website or app.
+
+**Gotcha:** SMS encoding varies across devices. Some Android phones use a different format (`sms:` instead of `SMSTO:`). The `SMSTO:` format has the widest compatibility in my testing, but it's not perfect. Test on both iOS and Android before printing a batch.
+
+---
+
+## Calendar event
+
+These encode event data in the iCalendar (`.ics`) format. Scan one and the event lands in your calendar app with the title, time, and location already filled in.
+
+```text
+BEGIN:VEVENT
+SUMMARY:Team Standup
+LOCATION:Conference Room B
+DTSTART:20260315T090000
+DTEND:20260315T091500
+END:VEVENT
+```
+
+Way better than telling attendees to "check the website for the schedule." Put one on a conference flyer or a class handout and people actually remember to show up.
+
+**Use case:** Gym class schedules. Print QR codes next to each class on the schedule board. Members scan the one they want and it goes into their calendar with the time and room.
+
+**Gotcha:** Time zones are tricky. The format above uses a "floating" time with no timezone info, which means the scanner's phone interprets it in whatever timezone the phone is set to. If your audience is in multiple time zones, append a `Z` for UTC or include a `TZID` parameter. Getting this wrong means people show up an hour early or late.
+
+---
+
+## MeCard vs vCard
+
+MeCard is vCard's lighter cousin. It carries less data but produces a smaller QR code, which matters when the code needs to fit on a name badge or a tiny sticker.
+
+| Feature | vCard | MeCard |
+|---------|-------|--------|
+| Standard | RFC 6350 | NTT DoCoMo |
+| Data density | High | Medium |
+| QR code size | Larger | Smaller |
+| Photo support | Yes | No |
+| Multiple phones | Yes | No |
+
+Use vCard when you need the full contact profile. Use MeCard when physical space is tight and you only need name, phone, and email.
+
+**My take:** I almost always recommend vCard over MeCard these days. Modern phone cameras are good enough to scan dense codes, and the extra data fields are worth it. MeCard made more sense in 2015 when cameras were worse. The one exception is if you're printing very small codes, say under 2 cm, where the simpler MeCard encoding gives you better scan reliability.
+
+---
+
+## Plain text
+
+Plain text QR codes just display a string. No action, no link, no app opens. The scanner shows the text and that's it.
+
+This might sound useless, but it has its niche. Serial numbers, reference codes, short messages, Wi-Fi passwords displayed as text rather than auto-connecting. I've seen them used for scavenger hunts and escape rooms where scanning a code reveals a clue.
+
+**Gotcha:** There's a practical limit of about 2,953 characters for a QR code, but you'll hit scan reliability issues well before that. Keep text QR codes under 300 characters for reliable scanning.
+
+---
+
+## X/Twitter profile
+
+This is really just a URL code that points to `https://x.com/username`, but having it as a dedicated type saves you from having to remember the URL format. Type the handle, get the code.
+
+**Use case:** Social media cards at events. Print a card with your QR code that links to your X profile. People scan it and follow you right there instead of trying to remember your handle later.
+
+---
+
+## Customizing your QR codes
+
+All 10 types share the same visual options. You can change foreground, background, and corner colors. There are several dot patterns (rounded, classy, extra-rounded) and corner styles. You can embed a logo, adjust the frame rounding, or make the background transparent for layering on other designs.
+
+Downloads come as PNG or SVG. Go with SVG for anything that'll be printed since it scales cleanly to any size. For more on what works visually and what doesn't, see our [QR code design best practices](/blog/qr-code-design-best-practices).
+
+**Tip:** High contrast matters more than aesthetics. A dark code on a light background scans fastest. If you go with a custom color scheme, test it with at least three different phones before committing to a print run. I've seen plenty of nicely designed QR codes that look great but don't scan because the contrast ratio is too low.
+
+---
+
+## Frequently asked questions
+
+### Q: What QR code type should I use for business cards?
+
+vCard. It encodes your full contact info and saves directly to the scanner's address book. If the card is small and you're running out of room, MeCard gives you a more compact code with just the essentials.
+
+### Q: Do QR codes expire?
+
+No. These are static codes. The data lives in the image itself, not on a server. They don't expire, don't require an account, and work offline. The only way one "breaks" is if you used a URL type and the destination page goes down.
+
+### Q: Can I generate QR codes programmatically?
+
+Yes. There's an [MCP server](/docs/mcp) that works with AI assistants like Claude, and a CLI tool for batch jobs. Both support all 10 types and the same styling options as the web app.
+
+### Q: What's the maximum amount of data a QR code can hold?
+
+The theoretical max is 2,953 bytes of alphanumeric data. In practice you'll want to stay well under that. Dense codes are harder to scan, especially on older phones or in poor lighting. For most use cases, keep your data under 500 characters and you'll be fine.
+
+### Q: Which QR code type is the most popular?
+
+URL, by a wide margin. It's the simplest and most versatile. WiFi is second in my experience, followed by vCard. The rest are niche but useful when you need them.

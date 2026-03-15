@@ -29,6 +29,12 @@ import {
 
 // ── QR Style ──
 
+interface QRGradient {
+  type: 'linear' | 'radial';
+  rotation?: number;
+  colorStops: { offset: number; color: string }[];
+}
+
 interface QRStyle {
   dotColor: string;
   bgColor: string;
@@ -40,19 +46,21 @@ interface QRStyle {
   logo: string; // base64 data URL or empty
   logoSize: number; // 0.2 to 0.5
   logoMargin: number;
+  dotGradient: QRGradient | null;
 }
 
 const defaultStyle: QRStyle = {
   dotColor: '#000000',
   bgColor: '#ffffff',
   transparentBg: false,
-  dotType: 'rounded',
-  cornerSquareType: 'extra-rounded',
-  cornerDotType: 'dot',
+  dotType: 'square',
+  cornerSquareType: 'square',
+  cornerDotType: 'square',
   bgRound: 0,
   logo: '',
   logoSize: 0.35,
   logoMargin: 6,
+  dotGradient: null,
 };
 
 const dotTypes: { label: string; value: DotType }[] = [
@@ -75,6 +83,303 @@ const cornerDotTypes: { label: string; value: CornerDotType }[] = [
   { label: 'Dot', value: 'dot' },
 ];
 
+// ── Skins ──
+
+type SkinRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+
+interface QRSkin {
+  id: string;
+  name: string;
+  rarity: SkinRarity;
+  dotColor: string;
+  bgColor: string;
+  dotType: DotType;
+  cornerSquareType: CornerSquareType;
+  cornerDotType: CornerDotType;
+  bgRound: number;
+  dotGradient?: QRGradient | null;
+}
+
+const RARITY_STYLES: Record<SkinRarity, { border: string; activeBorder: string; label: string; activeGlow: string }> = {
+  common:    { border: 'border-border',           activeBorder: 'border-zinc-400',    label: 'text-muted-foreground', activeGlow: '' },
+  uncommon:  { border: 'border-emerald-500/40',   activeBorder: 'border-emerald-400', label: 'text-emerald-400',      activeGlow: 'shadow-[0_0_12px_rgba(16,185,129,0.4)]' },
+  rare:      { border: 'border-blue-500/40',      activeBorder: 'border-blue-400',    label: 'text-blue-400',         activeGlow: 'shadow-[0_0_12px_rgba(59,130,246,0.45)]' },
+  epic:      { border: 'border-purple-500/40',    activeBorder: 'border-purple-400',  label: 'text-purple-400',       activeGlow: 'shadow-[0_0_14px_rgba(168,85,247,0.5)]' },
+  legendary: { border: 'border-yellow-500/50',    activeBorder: 'border-yellow-400',  label: 'text-yellow-400',       activeGlow: 'shadow-[0_0_16px_rgba(234,179,8,0.55)]' },
+};
+
+const QR_SKINS: QRSkin[] = [
+  // ── Common ──
+  {
+    id: 'classic',
+    name: 'Classic',
+    rarity: 'common',
+    dotColor: '#000000',
+    bgColor: '#ffffff',
+    dotType: 'square',
+    cornerSquareType: 'square',
+    cornerDotType: 'square',
+    bgRound: 0,
+  },
+  {
+    id: 'modern',
+    name: 'Modern',
+    rarity: 'common',
+    dotColor: '#000000',
+    bgColor: '#ffffff',
+    dotType: 'rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0,
+  },
+  {
+    id: 'dots',
+    name: 'Dots',
+    rarity: 'common',
+    dotColor: '#000000',
+    bgColor: '#ffffff',
+    dotType: 'dots',
+    cornerSquareType: 'dot',
+    cornerDotType: 'dot',
+    bgRound: 0,
+  },
+  {
+    id: 'inverted',
+    name: 'Inverted',
+    rarity: 'common',
+    dotColor: '#ffffff',
+    bgColor: '#000000',
+    dotType: 'square',
+    cornerSquareType: 'square',
+    cornerDotType: 'square',
+    bgRound: 0,
+  },
+  // ── Uncommon ──
+  {
+    id: 'classy',
+    name: 'Classy',
+    rarity: 'uncommon',
+    dotColor: '#1a1a2e',
+    bgColor: '#ffffff',
+    dotType: 'classy',
+    cornerSquareType: 'square',
+    cornerDotType: 'square',
+    bgRound: 0,
+  },
+  {
+    id: 'elegant',
+    name: 'Elegant',
+    rarity: 'uncommon',
+    dotColor: '#2d3436',
+    bgColor: '#ffffff',
+    dotType: 'classy-rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0.1,
+  },
+  {
+    id: 'bubble',
+    name: 'Bubble',
+    rarity: 'uncommon',
+    dotColor: '#000000',
+    bgColor: '#ffffff',
+    dotType: 'extra-rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0.2,
+  },
+  // ── Rare ──
+  {
+    id: 'bronze',
+    name: 'Bronze',
+    rarity: 'rare',
+    dotColor: '#cd7f32',
+    bgColor: '#1a120a',
+    dotType: 'classy',
+    cornerSquareType: 'square',
+    cornerDotType: 'square',
+    bgRound: 0.05,
+    dotGradient: {
+      type: 'linear',
+      rotation: Math.PI / 4,
+      colorStops: [
+        { offset: 0, color: '#cd7f32' },
+        { offset: 0.5, color: '#b87333' },
+        { offset: 1, color: '#cd7f32' },
+      ],
+    },
+  },
+  {
+    id: 'midnight',
+    name: 'Midnight',
+    rarity: 'rare',
+    dotColor: '#e2e8f0',
+    bgColor: '#0f172a',
+    dotType: 'rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0.1,
+  },
+  {
+    id: 'rose',
+    name: 'Rose',
+    rarity: 'rare',
+    dotColor: '#e91e63',
+    bgColor: '#fce4ec',
+    dotType: 'rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0.15,
+  },
+  // ── Epic ──
+  {
+    id: 'silver',
+    name: 'Silver',
+    rarity: 'epic',
+    dotColor: '#e8e8e8',
+    bgColor: '#141418',
+    dotType: 'rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0.1,
+    dotGradient: {
+      type: 'linear',
+      rotation: Math.PI / 4,
+      colorStops: [
+        { offset: 0, color: '#e8e8e8' },
+        { offset: 0.5, color: '#a8a8a8' },
+        { offset: 1, color: '#e8e8e8' },
+      ],
+    },
+  },
+  {
+    id: 'sunset',
+    name: 'Sunset',
+    rarity: 'epic',
+    dotColor: '#ff6b6b',
+    bgColor: '#fff9db',
+    dotType: 'classy-rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0,
+    dotGradient: {
+      type: 'linear',
+      rotation: Math.PI / 2,
+      colorStops: [
+        { offset: 0, color: '#ff6b6b' },
+        { offset: 1, color: '#fca311' },
+      ],
+    },
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    rarity: 'epic',
+    dotColor: '#0077b6',
+    bgColor: '#caf0f8',
+    dotType: 'dots',
+    cornerSquareType: 'dot',
+    cornerDotType: 'dot',
+    bgRound: 0,
+    dotGradient: {
+      type: 'linear',
+      rotation: Math.PI / 4,
+      colorStops: [
+        { offset: 0, color: '#0077b6' },
+        { offset: 1, color: '#023e8a' },
+      ],
+    },
+  },
+  // ── Legendary ──
+  {
+    id: 'gold',
+    name: 'Gold',
+    rarity: 'legendary',
+    dotColor: '#ffd700',
+    bgColor: '#1a1207',
+    dotType: 'classy-rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0.15,
+    dotGradient: {
+      type: 'linear',
+      rotation: Math.PI / 4,
+      colorStops: [
+        { offset: 0, color: '#ffd700' },
+        { offset: 0.5, color: '#ffa500' },
+        { offset: 1, color: '#ffd700' },
+      ],
+    },
+  },
+  {
+    id: 'neon',
+    name: 'Neon',
+    rarity: 'legendary',
+    dotColor: '#39ff14',
+    bgColor: '#0d0d0d',
+    dotType: 'extra-rounded',
+    cornerSquareType: 'extra-rounded',
+    cornerDotType: 'dot',
+    bgRound: 0,
+  },
+];
+
+function SkinPreview({ skin }: { skin: QRSkin }) {
+  const s = 48;
+  const g = 7;
+  const c = s / g;
+  const r = c * 0.38;
+
+  // Simplified QR-like pattern
+  const cells = [
+    [1,1,1,0,1,1,1],
+    [1,0,1,0,1,0,1],
+    [1,1,1,0,1,1,1],
+    [0,0,0,1,0,0,0],
+    [1,1,1,0,1,0,1],
+    [1,0,1,1,0,1,0],
+    [1,1,1,0,1,0,1],
+  ];
+
+  const gradId = skin.dotGradient ? `sg-${skin.id}` : undefined;
+  const fill = gradId ? `url(#${gradId})` : skin.dotColor;
+
+  const dot = (cx: number, cy: number, key: string) => {
+    switch (skin.dotType) {
+      case 'dots':
+        return <circle key={key} cx={cx} cy={cy} r={r * 0.8} fill={fill} />;
+      case 'rounded':
+      case 'extra-rounded':
+      case 'classy-rounded':
+        return <rect key={key} x={cx - r} y={cy - r} width={r * 2} height={r * 2} rx={r * 0.7} fill={fill} />;
+      case 'classy':
+        return <rect key={key} x={cx - r} y={cy - r} width={r * 2} height={r * 2} rx={r * 0.2} fill={fill} />;
+      default:
+        return <rect key={key} x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill={fill} />;
+    }
+  };
+
+  return (
+    <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} className="rounded-sm">
+      <rect width={s} height={s} rx={skin.bgRound * s * 0.25} fill={skin.bgColor} />
+      {skin.dotGradient && (
+        <defs>
+          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+            {skin.dotGradient.colorStops.map((stop, i) => (
+              <stop key={i} offset={`${stop.offset * 100}%`} stopColor={stop.color} />
+            ))}
+          </linearGradient>
+        </defs>
+      )}
+      {cells.map((row, y) =>
+        row.map((v, x) =>
+          v ? dot(x * c + c / 2, y * c + c / 2, `${x}-${y}`) : null,
+        ),
+      )}
+    </svg>
+  );
+}
+
 // ── App ──
 
 export default function QRGenerator({ type }: { type?: string }) {
@@ -86,6 +391,7 @@ export default function QRGenerator({ type }: { type?: string }) {
   );
   const [vcardData, setVcardData] = useState<VCardData>({ ...defaultVCard });
   const [style, setStyle] = useState<QRStyle>({ ...defaultStyle });
+  const [activeSkin, setActiveSkin] = useState<string | null>('classic');
   const [scrolled, setScrolled] = useState(false);
   const formScrollRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<HTMLDivElement>(null);
@@ -124,11 +430,15 @@ export default function QRGenerator({ type }: { type?: string }) {
           return;
         }
         qrCode.current = new QRCodeStyling({
-          width: 280,
-          height: 280,
+          width: 220,
+          height: 220,
           type: 'svg',
           data,
-          dotsOptions: { color: style.dotColor, type: style.dotType },
+          dotsOptions: {
+            color: style.dotColor,
+            type: style.dotType,
+            ...(style.dotGradient ? { gradient: style.dotGradient } : {}),
+          },
           backgroundOptions: {
             color: style.transparentBg ? 'transparent' : style.bgColor,
             round: style.bgRound,
@@ -165,12 +475,34 @@ export default function QRGenerator({ type }: { type?: string }) {
     }
     const reader = new FileReader();
     reader.onload = () => {
+      setActiveSkin(null);
       setStyle(s => ({ ...s, logo: reader.result as string }));
     };
     reader.readAsDataURL(file);
   };
 
-  const removeLogo = () => setStyle(s => ({ ...s, logo: '' }));
+  const removeLogo = () => { setActiveSkin(null); setStyle(s => ({ ...s, logo: '' })); };
+
+  const applySkin = (skin: QRSkin) => {
+    setActiveSkin(skin.id);
+    setStyle(s => ({
+      ...s,
+      dotColor: skin.dotColor,
+      bgColor: skin.bgColor,
+      dotType: skin.dotType,
+      cornerSquareType: skin.cornerSquareType,
+      cornerDotType: skin.cornerDotType,
+      bgRound: skin.bgRound,
+      dotGradient: skin.dotGradient ?? null,
+      transparentBg: false,
+    }));
+  };
+
+  // Wrap manual style edits to deselect active skin
+  const tweakStyle = (updater: (s: QRStyle) => QRStyle) => {
+    setActiveSkin(null);
+    setStyle(updater);
+  };
 
   const updateForm = <T extends object>(type: QRType, updates: Partial<T>) => {
     setFormData(prev => ({
@@ -219,19 +551,9 @@ export default function QRGenerator({ type }: { type?: string }) {
   // ── Render ──
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
-      <div className="mx-auto w-full max-w-7xl border-x border-border flex flex-col flex-1 min-h-0">
-        {/* Header */}
-        <header className="shrink-0 border-b border-border px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-sm font-semibold tracking-wide uppercase text-foreground">
-              <span className="hand-underline">Free</span> QR Code Generator
-            </h1>
-          </div>
-        </header>
-
-        {/* Main grid: nav | form | preview */}
-        <div className="grid flex-1 min-h-0 lg:grid-cols-[200px_1fr_360px]">
+    <>
+      {/* Main grid: nav | form | preview */}
+      <div className="grid flex-1 min-h-0 lg:grid-cols-[200px_1fr_300px]">
 
           {/* ── Left: Type navigation (fixed, no scroll on desktop) ── */}
           <nav className="border-b border-border lg:border-b-0 lg:border-r border-border shrink-0 lg:overflow-y-auto" aria-label="QR code types">
@@ -323,7 +645,7 @@ export default function QRGenerator({ type }: { type?: string }) {
               </div>
               <div className="border-b border-border p-6">
                 <div className="flex flex-col items-center gap-4">
-                  <div className="relative flex min-h-[280px] items-center justify-center">
+                  <div className="relative flex min-h-[220px] items-center justify-center">
                     <div ref={qrRef} className="flex items-center justify-center" />
                     {!ready && (
                       <span className="absolute inset-0 flex items-center justify-center px-4 text-center text-sm text-muted-foreground">
@@ -346,6 +668,35 @@ export default function QRGenerator({ type }: { type?: string }) {
               </div>
             </div>
 
+            {/* ── Skins Belt ── */}
+            <div className="border-b border-border px-6 py-3 space-y-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Skins</p>
+              <div className="flex gap-2.5 overflow-x-auto -mx-6 px-3 py-1.5 scrollbar-thin">
+                {QR_SKINS.map(skin => {
+                  const rs = RARITY_STYLES[skin.rarity];
+                  const isActive = activeSkin === skin.id;
+                  return (
+                    <button
+                      key={skin.id}
+                      onClick={() => applySkin(skin)}
+                      className={`group flex flex-col items-center gap-1.5 shrink-0 pt-2 pb-1.5 px-2 border transition-all ${
+                        isActive
+                          ? `border-solid ${rs.activeBorder} bg-primary/10 ${rs.activeGlow}`
+                          : `border-dashed ${rs.border} hover:${rs.activeBorder} hover:bg-muted/30`
+                      }`}
+                    >
+                      <SkinPreview skin={skin} />
+                      <span className={`text-[10px] leading-none font-medium ${
+                        isActive ? rs.label : skin.rarity === 'common' ? 'text-muted-foreground' : rs.label
+                      }`}>
+                        {skin.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Style Options */}
             <div className="border-b border-border px-6 py-4">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Style</p>
@@ -360,7 +711,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                     <input
                       type="color"
                       value={style.dotColor}
-                      onChange={e => setStyle(s => ({ ...s, dotColor: e.target.value }))}
+                      onChange={e => tweakStyle(s => ({ ...s, dotColor: e.target.value, dotGradient: null }))}
                       className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent p-0.5"
                     />
                     <span className="text-xs text-muted-foreground font-mono">{style.dotColor}</span>
@@ -372,7 +723,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                     <input
                       type="color"
                       value={style.bgColor}
-                      onChange={e => setStyle(s => ({ ...s, bgColor: e.target.value }))}
+                      onChange={e => tweakStyle(s => ({ ...s, bgColor: e.target.value }))}
                       className={`h-8 w-10 cursor-pointer rounded border border-border bg-transparent p-0.5 ${style.transparentBg ? 'opacity-40 pointer-events-none' : ''}`}
                     />
                     <span className="text-xs text-muted-foreground font-mono">{style.transparentBg ? 'transparent' : style.bgColor}</span>
@@ -383,7 +734,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                 <input
                   type="checkbox"
                   checked={style.transparentBg}
-                  onChange={e => setStyle(s => ({ ...s, transparentBg: e.target.checked }))}
+                  onChange={e => tweakStyle(s => ({ ...s, transparentBg: e.target.checked }))}
                   className="h-4 w-4 rounded border-border"
                 />
                 <span className="text-xs text-muted-foreground">Transparent background</span>
@@ -399,7 +750,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                     key={dt.value}
                     variant={style.dotType === dt.value ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setStyle(s => ({ ...s, dotType: dt.value }))}
+                    onClick={() => tweakStyle(s => ({ ...s, dotType: dt.value }))}
                     className="text-xs"
                   >
                     {dt.label}
@@ -417,7 +768,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                     key={ct.value}
                     variant={style.cornerSquareType === ct.value ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setStyle(s => ({ ...s, cornerSquareType: ct.value }))}
+                    onClick={() => tweakStyle(s => ({ ...s, cornerSquareType: ct.value }))}
                     className="text-xs"
                   >
                     {ct.label}
@@ -435,7 +786,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                     key={cd.value}
                     variant={style.cornerDotType === cd.value ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setStyle(s => ({ ...s, cornerDotType: cd.value }))}
+                    onClick={() => tweakStyle(s => ({ ...s, cornerDotType: cd.value }))}
                     className="text-xs"
                   >
                     {cd.label}
@@ -455,7 +806,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                 max={50}
                 step={1}
                 value={[Math.round(style.bgRound * 100)]}
-                onValueChange={([v]) => setStyle(s => ({ ...s, bgRound: v / 100 }))}
+                onValueChange={([v]) => tweakStyle(s => ({ ...s, bgRound: v / 100 }))}
               />
             </div>
 
@@ -485,7 +836,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                         max={50}
                         step={1}
                         value={[Math.round(style.logoSize * 100)]}
-                        onValueChange={([v]) => setStyle(s => ({ ...s, logoSize: v / 100 }))}
+                        onValueChange={([v]) => tweakStyle(s => ({ ...s, logoSize: v / 100 }))}
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -498,7 +849,7 @@ export default function QRGenerator({ type }: { type?: string }) {
                         max={20}
                         step={1}
                         value={[style.logoMargin]}
-                        onValueChange={([v]) => setStyle(s => ({ ...s, logoMargin: v }))}
+                        onValueChange={([v]) => tweakStyle(s => ({ ...s, logoMargin: v }))}
                       />
                     </div>
                   </div>
@@ -529,29 +880,7 @@ export default function QRGenerator({ type }: { type?: string }) {
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="shrink-0 border-t border-border px-6 py-4">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              Made by
-              <a href="https://github.com/Sokanon" target="_blank" rel="noopener noreferrer" className="group/so inline-flex items-center gap-1.5 text-foreground">
-                <img src="https://avatars.githubusercontent.com/u/53493508?v=4" alt="So" className="h-4 w-4 rounded-full" />
-                <span className="hand-underline">So</span>
-              </a>
-              from
-              <a href="https://gamified.studio" target="_blank" rel="noopener noreferrer" className="group/gs inline-flex items-center gap-1.5 text-foreground">
-                <img src="https://avatars.githubusercontent.com/u/164414310?v=4" alt="Gamified Studio" className="h-4 w-4 rounded-full" />
-                <span className="hand-underline">Gamified.studio</span>
-              </a>
-            </span>
-            <a href="https://railway.com?referralCode=_xv-mn" target="_blank" rel="noopener noreferrer" className="hidden sm:inline-flex items-center gap-1.5 text-foreground">
-              <img src="https://avatars.githubusercontent.com/u/66716858?s=200&v=4" alt="Railway" className="h-4 w-4 rounded-full" />
-              <span className="hand-underline">Deployed on Railway</span>
-            </a>
-          </div>
-        </footer>
-      </div>
-    </div>
+    </>
   );
 }
 

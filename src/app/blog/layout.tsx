@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: {
     default: "Blog | QR Gamified Studio",
-    template: "%s | QR Gamified Studio",
+    template: "%s | QR Gamified",
   },
   description:
     "Tips, guides, and insights on QR codes — from vCards and WiFi sharing to events and bulk generation.",

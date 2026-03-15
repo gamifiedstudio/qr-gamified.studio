@@ -7,6 +7,7 @@ import {
   defaultVCard,
 } from '../vcard.ts';
 import { generateQRToFile, generateVCardString } from '../lib/qr-generator.ts';
+import { SKIN_COLORS, resolveColors } from '../skins.ts';
 
 const HELP = `
 vcard-qr — Generate QR codes from vCard contact data
@@ -43,8 +44,11 @@ Web & Notes:
 Output:
   -o, --output <path>            Output file path (default: <name>_qr.png)
   --width <pixels>               QR code width (default: 800)
-  --dark-color <hex>             QR dark color (default: #000000)
-  --light-color <hex>            QR light color (default: #ffffff)
+  --skin <name>                  Color preset. Options:
+                                 classic, modern, dots, classy, elegant, bubble,
+                                 midnight, ocean, sunset, neon, rose, inverted
+  --dark-color <hex>             QR dark color (overrides skin)
+  --light-color <hex>            QR light color (overrides skin)
   --vcard-only                   Output raw vCard text instead of QR image
 
 Other:
@@ -118,6 +122,7 @@ async function main() {
       note: { type: 'string' },
       output: { type: 'string', short: 'o' },
       width: { type: 'string' },
+      skin: { type: 'string' },
       'dark-color': { type: 'string' },
       'light-color': { type: 'string' },
       'vcard-only': { type: 'boolean' },
@@ -164,14 +169,25 @@ async function main() {
     process.exit(0);
   }
 
+  // Validate skin
+  if (values.skin && !(values.skin in SKIN_COLORS)) {
+    console.error(`Error: unknown skin "${values.skin}". Options: ${Object.keys(SKIN_COLORS).join(', ')}`);
+    process.exit(1);
+  }
+
   // Determine output path
   const name = [data.firstName, data.lastName].filter(Boolean).join('_') || 'vcard';
   const outputPath = resolve(values.output || `${name}_qr.png`);
 
-  await generateQRToFile(data, outputPath, {
-    width: values.width ? parseInt(values.width, 10) : 800,
+  const colors = resolveColors({
+    skin: values.skin,
     darkColor: values['dark-color'],
     lightColor: values['light-color'],
+  });
+
+  await generateQRToFile(data, outputPath, {
+    width: values.width ? parseInt(values.width, 10) : 800,
+    ...colors,
   });
 
   console.log(`QR code saved: ${outputPath}`);

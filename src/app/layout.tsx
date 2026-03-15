@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import Link from 'next/link';
 import { ThemeProvider } from 'next-themes';
+import { SiteNav } from '@/components/SiteNav';
+import { GitHubBadge } from '@/components/GitHubBadge';
+import { SiteFooter } from '@/components/SiteFooter';
 import '@fontsource-variable/geist';
 import '@/index.css';
 
@@ -54,7 +58,34 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          {children}
+          <div className="h-screen bg-background flex flex-col overflow-hidden">
+            <div className="mx-auto w-full max-w-7xl border-x border-border flex flex-col flex-1 min-h-0">
+              {/* Header */}
+              <header className="shrink-0 border-b border-border px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href="/"
+                      className="text-sm font-semibold tracking-wide uppercase text-foreground hover:text-foreground/80 transition-colors"
+                    >
+                      <span className="hand-underline">Free</span> QR Code Generator
+                    </Link>
+                    <span className="h-4 w-px bg-border" aria-hidden="true" />
+                    <GitHubBadge />
+                  </div>
+                  <SiteNav />
+                </div>
+              </header>
+
+              {/* Page content */}
+              <main className="flex-1 min-h-0 flex flex-col">
+                {children}
+              </main>
+
+              {/* Footer */}
+              <SiteFooter />
+            </div>
+          </div>
         </ThemeProvider>
       </body>
     </html>

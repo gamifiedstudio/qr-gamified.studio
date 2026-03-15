@@ -1,0 +1,210 @@
+---
+title: "How to Create a QR Code for Your Business Card"
+description: "Step-by-step guide to creating vCard QR codes for business cards — encode your name, phone, email, and company so contacts save your info with one scan."
+date: "2026-03-15"
+author: "So"
+tags: ["QR Codes", "Guide"]
+readTime: 7
+---
+
+## Why put a QR code on your business card?
+
+**Quick answer:** A QR code on your business card lets people save your contact info with a single scan instead of typing it in manually. One scan and your name, phone, email, company, and address go straight into their phone.
+
+Here's the real problem with business cards: you hand one over at a conference, and 90% of the time it ends up in a drawer or gets tossed. Even the people who try to add you manually will misspell your email or transpose a digit in your phone number. A **vCard** QR code skips all of that. Scan, tap "Add Contact," done.
+
+Worth noting the difference between a URL QR code and a vCard QR code. A URL code just opens a webpage. A vCard code triggers the phone's native contact-saving flow, so it works without a browser or even an internet connection.
+
+---
+
+## What data can a vCard QR code store?
+
+A vCard QR code follows the [vCard 3.0 specification](https://datatracker.ietf.org/doc/html/rfc6350) and can encode all of these fields:
+
+| Field | Example |
+|-------|---------|
+| First & last name | Jane Smith |
+| Prefix & suffix | Dr., PhD |
+| Company | Acme Corp |
+| Job title | Marketing Director |
+| Phone (multiple) | Work, mobile, home |
+| Email (multiple) | Work, personal |
+| Address | Full postal address with geo |
+| Website URL | https://example.com |
+| Notes | Free-form text |
+
+That's way more than what fits on a printed card. Your physical card probably shows a name, title, and email. The QR code behind it can carry your full mailing address, three different phone numbers, and a link to your portfolio. And the same vCard QR code works in other places too — I use the same one in my [email signature](/blog/qr-code-email-signatures).
+
+---
+
+## How to create your vCard QR code
+
+### 1. Open the vCard generator
+
+Go to [qr.gamified.studio/vcard](https://qr.gamified.studio/vcard). The vCard form is separate from the general QR generator because it needs dedicated fields for every contact property.
+
+### 2. Fill in your details
+
+Enter your name, company, title, phone numbers, and email addresses. You can add multiple phone numbers and emails with type labels (Work, Cell, Home). If your company address matters to the people scanning your card, add that too. The form supports full postal addresses with optional geolocation.
+
+### 3. Pick a style
+
+Choose a skin that matches your brand. Options include `classic`, `ocean`, `midnight`, `rose`, `sunset`, and others. Each skin sets coordinated foreground and background colors, but you can override individual colors, change the dot pattern, and adjust corner styles if the presets don't quite fit.
+
+### 4. Add your logo
+
+Upload your company logo or headshot. It gets embedded in the center of the QR code. The generator bumps up **error correction** automatically so the code still scans with the logo covering part of it.
+
+### 5. Download
+
+Export as **PNG** for digital use or **SVG** for print. For business cards, go with SVG. It scales to any size without pixelation, so your printer gets a clean result whether the code is 1cm or 5cm wide.
+
+---
+
+## What the QR code actually contains
+
+Under the hood, your vCard QR code is just a structured text block. Here's what a typical one looks like:
+
+```text
+BEGIN:VCARD
+VERSION:3.0
+N:Smith;Jane;;;
+FN:Jane Smith
+ORG:Acme Corp
+TITLE:Marketing Director
+TEL;TYPE=WORK:+12025551234
+TEL;TYPE=CELL:+12025555678
+EMAIL;TYPE=WORK:jane@acmecorp.com
+ADR;TYPE=WORK:;;123 Main St;New York;NY;10001;USA
+URL:https://acmecorp.com
+END:VCARD
+```
+
+This is what the scanning phone actually reads. It parses these fields and maps them to the native contact form. The `TYPE` labels tell the phone which number is work vs. mobile, which email is personal vs. professional.
+
+---
+
+## vCard vs. MeCard
+
+Both encode contact data. **MeCard** is a simpler format; the tradeoff is completeness vs. size.
+
+| | vCard | MeCard |
+|---|-------|--------|
+| Fields supported | 10+ | 6 |
+| Multiple phones/emails | Yes | No |
+| Address support | Full 7-component | Basic |
+| QR code size | Larger | Smaller |
+| Best for | Full contact profiles | Minimal info, small print |
+
+If your business card has room for a decent-sized QR code (at least 2cm x 2cm), use vCard. MeCard only makes sense when you're printing on something tiny like a badge or sticker where physical space is the bottleneck, not data.
+
+You can generate both at [qr.gamified.studio](https://qr.gamified.studio) and compare the output sizes yourself.
+
+---
+
+## Generating QR codes in bulk
+
+Need QR codes for your entire team? The [bulk vCard tool](/vcard/bulk) handles that. I wrote a separate guide on [bulk QR code generation](/blog/bulk-qr-code-generation) that covers CSV formatting and batch workflows in more detail. Upload a CSV with columns for name, title, phone, email, and company, and it generates a QR code per row. Download them all at once.
+
+The most common use case is employee onboarding: someone joins, you generate their card QR code from the same CSV you use for everything else. It's also handy for conference badges or sales teams where everyone needs consistent branding.
+
+For scripting and automation, the CLI works too:
+
+```bash
+bun run cli -f Jane -l Smith \
+  --org "Acme Corp" \
+  --title "Marketing Director" \
+  --phone WORK:+12025551234 \
+  --email WORK:jane@acmecorp.com \
+  --url https://acmecorp.com \
+  --skin ocean \
+  -o jane-smith.png
+```
+
+Wrap that in a loop over a list of employees and you've got a batch process that runs in seconds.
+
+---
+
+## Generating QR codes with AI
+
+The [MCP server](/docs/mcp) lets AI assistants generate QR codes through natural language. If you use Claude or another MCP-compatible client, you can just say:
+
+> "Create a vCard QR code for Jane Smith, Marketing Director at Acme Corp, work phone +12025551234, email jane@acmecorp.com, ocean skin."
+
+The assistant calls the `generate_vcard_qr` tool, gets back a PNG, and shows it to you. No forms to fill out.
+
+The remote MCP server is at `qr.gamified.studio/mcp`. For local use with Claude Code, run `bun run mcp` to start the stdio transport.
+
+---
+
+## Design tips that actually matter
+
+Print your QR code at a minimum of 2cm x 2cm (0.8in x 0.8in). Smaller codes packed with vCard data can fail to scan, especially in dim lighting or with older phone cameras. This is the most common mistake I see.
+
+Dark dots on a light background scan better than the reverse. Always. If you use a colored skin like `ocean` or `sunset`, test the printed result with a few different phones before committing to a print run. What looks fine on screen can fall apart on matte card stock.
+
+If your business card has a dark background, don't try to invert the QR code colors. Put the code inside a white box instead. Light-on-dark QR codes have noticeably worse scan rates across devices.
+
+Leave a quiet zone around the code. That's the blank margin between the QR code edge and any text or design elements. The spec calls for four modules of whitespace, but I'd go with at least 3mm on a business card. Without it, nearby text or borders can confuse the scanner.
+
+Pick a dot style that matches your brand without sacrificing readability. Rounded dots look softer and pair well with modern designs. Square dots are the default and scan the most reliably. I'd avoid overly decorative styles like diamond or star patterns on business cards because the small print size already pushes the limits of what cameras can resolve.
+
+And test before you print. Generate your code, display it on screen, and scan it with at least two different phones. Check that all the fields come through correctly in the contact preview. Finding a typo in your phone number after printing 500 cards is not a good time.
+
+For a deeper dive on color contrast, quiet zones, and dot style choices, see the full [QR code design best practices](/blog/qr-code-design-best-practices) guide.
+
+---
+
+## QR code placement on different card layouts
+
+Where you put the QR code depends on the card format. I've ordered cards in three different layouts over the years and each one has its own constraints.
+
+**Standard horizontal (3.5 x 2 in).** This is the most common format. I put the QR code on the back, centered, at about 2.5cm wide. The front stays clean with just text and logo. If you want the code on the front, bottom-right corner works best. It stays out of the way of your name and title but is still easy to find.
+
+**Vertical (2 x 3.5 in).** Vertical cards have more height to work with. The QR code fits well in the bottom third of the front face, centered below your contact details. I've also seen it work on the back at a larger size, around 3cm, which gives older cameras an easier time.
+
+**Folded or bi-fold (3.5 x 4 in unfolded).** Folded cards give you four panels. Use the back panel for the QR code. You have enough room to print it at 3-4cm, which is generous. The inside panels can hold extra info that the code also encodes, so the recipient gets it both ways.
+
+Regardless of layout, keep the QR code away from the card edges. Printers trim cards after cutting, and a code that sits too close to the trim line might lose its quiet zone. I leave at least 5mm between the code and any edge.
+
+---
+
+## Print checklist
+
+Before you send your card design to the printer, run through this list. I've learned most of these the hard way.
+
+- [ ] Scan the QR code on screen with at least two phones (one iPhone, one Android)
+- [ ] Verify every contact field in the save-contact preview matches what you entered
+- [ ] Confirm the QR code is exported as SVG (or PNG at 300+ DPI minimum)
+- [ ] Check that the code is at least 2cm x 2cm in the final layout
+- [ ] Ensure the quiet zone has at least 3mm of clear space on all sides
+- [ ] Test dark-on-light contrast if you used a colored skin
+- [ ] If you added a logo, confirm the code still scans after the logo is embedded
+- [ ] Double-check your phone number with country code (the most common mistake)
+- [ ] Ask for a proof print and scan the physical card before approving the full run
+
+That last step catches problems that screen testing misses. Glossy card stock can create glare that makes codes harder to scan under certain lighting. Matte stock is more forgiving.
+
+---
+
+## Frequently asked questions
+
+### Q: Do vCard QR codes work on both iPhone and Android?
+
+Yes. Both iOS and Android natively support vCard 3.0. When you scan the code with the default camera app, the phone recognizes it as a contact and offers to save it. No third-party app needed.
+
+### Q: Can I include a photo in my vCard QR code?
+
+Technically yes, since the vCard spec supports photos. But embedding an image balloons the data size and makes the QR code much denser. For business cards, skip the photo. It makes the code harder to scan at small print sizes. Link to your website or LinkedIn instead.
+
+### Q: How much data can a QR code hold?
+
+About 3,000 bytes of text. A typical vCard with name, company, title, two phone numbers, email, and address uses around 300-500 bytes. You have plenty of room.
+
+### Q: Will the QR code stop working if I change my phone number?
+
+Yes. The data is baked into the image. If your phone number or email changes, you need to generate a new QR code and reprint your cards. There's no server behind it to update.
+
+### Q: What format should I send to my printer?
+
+SVG. It's a vector format that scales to any size without quality loss. Your printer can place it at whatever dimensions they need. PNG works too, but export it at the highest resolution available.

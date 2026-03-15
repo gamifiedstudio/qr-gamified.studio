@@ -62,7 +62,7 @@ export function BlogToC({ headings, variant }: BlogToCProps) {
   if (variant === "sidebar") {
     return (
       <nav aria-label="Table of contents" className="max-h-[calc(100vh-8rem)] overflow-y-auto">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3 px-2 pt-2">
           On this page
         </p>
         {links}
@@ -74,7 +74,7 @@ export function BlogToC({ headings, variant }: BlogToCProps) {
   return (
     <nav
       aria-label="Table of contents"
-      className="mb-8 border border-border rounded-xl overflow-hidden"
+      className="mb-8 border border-border overflow-hidden"
     >
       <button
         type="button"
