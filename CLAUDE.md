@@ -116,6 +116,10 @@ This project is **already linked** via `~/.railway/config.json`.
 | Zone    | `ed1e713c326cd1afcd60de9178bf26c3` (gamified.studio) |
 | CNAME   | `qr` → `oh833lgm.up.railway.app`  |
 
+## Discord
+
+- Channel: `#qr-generator` (ID: `1483119194542440498`)
+
 ## Linear
 
 | Key        | Value                                          |
