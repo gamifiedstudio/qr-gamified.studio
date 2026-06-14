@@ -415,7 +415,7 @@ export default function BulkVCard() {
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<InputMode>('csv');
   const [style, setStyle] = useState<QRStyle>({ ...defaultStyle });
-  const [generating, setGenerating] = useState(false);
+  const [generating, setGenerating] = useState<'png' | 'svg' | false>(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [copied, setCopied] = useState<'prompt' | 'example' | null>(null);
   const qrRef = useRef<HTMLDivElement>(null);
@@ -541,9 +541,9 @@ export default function BulkVCard() {
   }, [handleFileUpload]);
 
   // Bulk download
-  const downloadZip = useCallback(async () => {
+  const downloadZip = useCallback(async (format: 'png' | 'svg') => {
     if (contacts.length === 0) return;
-    setGenerating(true);
+    setGenerating(format);
     setProgress({ current: 0, total: contacts.length });
 
     try {
@@ -554,10 +554,10 @@ export default function BulkVCard() {
         const vcard = buildVCard(contacts[i]);
         const qr = createQRInstance(vcard, style);
 
-        const blob = await qr.getRawData('png');
+        const blob = await qr.getRawData(format);
         if (blob) {
           const filename = getContactFilename(contacts[i], i);
-          zip.file(`${filename}.png`, blob);
+          zip.file(`${filename}.${format}`, blob);
         }
 
         // Yield main thread every 10 contacts to allow GC and UI updates
@@ -571,7 +571,7 @@ export default function BulkVCard() {
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `vcard_qr_codes_${contacts.length}.zip`;
+      a.download = `vcard_qr_codes_${contacts.length}_${format}.zip`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (e) {
@@ -829,17 +829,31 @@ export default function BulkVCard() {
             {/* Bulk Download */}
             {contacts.length > 1 && (
               <div className="border-b border-border p-6">
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={downloadZip}
-                  disabled={generating}
-                >
-                  {generating
-                    ? `Generating ${progress.current}/${progress.total}...`
-                    : `Download All ${contacts.length} QR Codes (ZIP)`
-                  }
-                </Button>
+                <div className="flex w-full gap-2">
+                  <Button
+                    className="flex-1"
+                    size="lg"
+                    onClick={() => downloadZip('png')}
+                    disabled={!!generating}
+                  >
+                    {generating === 'png'
+                      ? `Generating ${progress.current}/${progress.total}...`
+                      : `Download All ${contacts.length} (PNG ZIP)`
+                    }
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    size="lg"
+                    onClick={() => downloadZip('svg')}
+                    disabled={!!generating}
+                  >
+                    {generating === 'svg'
+                      ? `Generating ${progress.current}/${progress.total}...`
+                      : `Download All ${contacts.length} (SVG ZIP)`
+                    }
+                  </Button>
+                </div>
                 {generating && (
                   <div className="mt-3 w-full bg-muted rounded-full h-1.5 overflow-hidden">
                     <div
