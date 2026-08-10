@@ -101,10 +101,10 @@ This project is **already linked** via `~/.railway/config.json`.
 
 | Key           | Value                                          |
 | ------------- | ---------------------------------------------- |
-| Project       | `b04ab144-8e1f-43aa-bf69-49f834795fc0`         |
-| Service       | `ae57155f-d822-4e0f-bf53-9e9e77f97924`         |
+| Project       | `3f48add9-bdad-47cc-a135-405a0f2d4fc7`         |
+| Service       | `fdfcc3c1-2a6f-4368-9a4a-450aa4f2bda8`         |
 | Service name  | `qr-generator`                                 |
-| Environment   | `bb472f06-db63-4fb8-a53c-b5689d04fa28` (prod)  |
+| Environment   | `ed978dc6-4f37-4aab-b165-97dcf7c4283b` (prod)  |
 | Domain        | `qr.gamified.studio`                           |
 
 **Deploy**: Railpack builds with `bun run build`, starts with `npx next start`. Config in `railway.toml`.
@@ -114,7 +114,7 @@ This project is **already linked** via `~/.railway/config.json`.
 | Key     | Value                              |
 | ------- | ---------------------------------- |
 | Zone    | `ed1e713c326cd1afcd60de9178bf26c3` (gamified.studio) |
-| CNAME   | `qr` → `oh833lgm.up.railway.app`  |
+| CNAME   | `qr` → `cshik326.up.railway.app`  |
 
 ## Discord
 
